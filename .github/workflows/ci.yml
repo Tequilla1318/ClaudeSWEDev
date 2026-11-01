@@ -45,6 +45,11 @@ jobs:
       - name: Lint
         run: |
           ruff check .
-          ruff format --check .
+          if grep -q '^\[tool\.black\]' pyproject.toml; then
+            pip install black
+            black --check .
+          else
+            ruff format --check .
+          fi
       - name: Test
         run: pytest -q
