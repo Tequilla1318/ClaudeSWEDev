@@ -1,0 +1,40 @@
+[build-system]
+requires = ["scikit-build-core>=0.10", "pybind11>=2.13"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "prob-orbit-prop"
+version = "0.1.0"
+description = "Probabilistic orbit propagation under EGM2008 gravity: integrator accuracy vs cost"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["numpy>=1.26"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "black>=24", "ruff>=0.6"]
+
+[tool.scikit-build]
+cmake.version = ">=3.24"
+cmake.build-type = "Release"
+build-dir = "build/{wheel_tag}"
+wheel.packages = ["src/prob_orbit_prop"]
+
+[tool.scikit-build.cmake.define]
+POP_BUILD_PYTHON = "ON"
+POP_BUILD_TESTS = "OFF"
+
+# Owner requirement: Python is formatted with black (CI runs `black --check`
+# because this table exists). ruff is used for linting only.
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
