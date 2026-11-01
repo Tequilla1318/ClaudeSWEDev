@@ -13,4 +13,4 @@ See [CLAUDE.md](CLAUDE.md) for the full working agreement and Definition of Done
 ## Projects
 | Project | Description | Status |
 |---|---|---|
-| _none yet_ | | |
+| [prob-orbit-prop](projects/prob-orbit-prop/docs/design.md) | Probabilistic orbit propagation under EGM2008; integrator accuracy vs cost | Design proposed |
