@@ -14,6 +14,11 @@ This repo is a workspace for many independent software projects. The owner descr
 - Each project lives in `projects/<project-name>/` (kebab-case) and is self-contained:
   its own `README.md`, dependency file (e.g. `pyproject.toml`), `src/`, and `tests/`.
 - Shared tooling (CI, templates) lives in `.github/`.
+- **Side projects** live on a long-lived branch `project/<name>` and are **never merged to `main`**.
+  Their design-doc and story PRs target `project/<name>` (story branches are cut from it), and their docs
+  (`context.md`, `decisions.md`) exist only on that branch — check it out before starting work.
+  Repo-wide changes reach a side project by merging `main` into `project/<name>` in a `chore/` PR.
+  Current side projects: `prob-orbit-prop` (branch `project/prob-orbit-prop`).
 
 ## Project context (memory between sessions)
 Sessions start from a fresh clone and remember nothing else, so each project keeps its own context:
