@@ -1,6 +1,6 @@
 # Design: Probabilistic orbit propagation under EGM2008 gravity — integrator comparison
 
-Status: **proposed** (awaiting owner approval; no implementation until approved)
+Status: **revised after owner review 2026-11-01** (owner answered §8; approval = merging this PR)
 Project dir: `projects/prob-orbit-prop/`
 
 ## 1. Goal
@@ -31,7 +31,8 @@ drag can be added later** (separate story/branch, see M5) without touching integ
 ## 2. Scope
 
 **In scope (v1)**
-- EGM2008 gravity, configurable truncation (degree/order up to ~120; default 70×70), tide-free coefficients.
+- EGM2008 gravity, configurable truncation (degree/order up to 120; **v1 runs at 70×70**), tide-free coefficients.
+- **v1 scenario: LEO only** (400 km, i = 51.6°), **7-day horizon**. Other regimes stay configurable but are not run in v1.
 - Simple Earth-orientation model: uniform rotation about the z-axis (Earth Rotation Angle), GCRF ≈ inertial.
 - Integrators implemented from scratch in C++ (the comparison *is* the point), cross-checked against SciPy.
 - Monte Carlo ensembles from a Gaussian initial covariance, plus linearised (STM) and unscented-transform
@@ -117,8 +118,26 @@ That gives each method a curve, not a point, on the work-precision plane.
      conjunction-style probability of passing within d of a reference trajectory.
   5. Structure diagnostics (the video's point): Jacobi-integral drift per particle, and
      `|det Φ − 1|` (phase-space volume) from the STM for each integrator.
-- **Scenarios**: LEO 400 km i=51.6° (strong harmonics), SSO 700 km, GPS-like MEO, Molniya (high e — where
-  adaptive stepping should shine). Horizons 1 d, 7 d, 30 d.
+- **Headline result (owner choice)**: integrator error vs ensemble spread — metric (1) — reported over time
+  for each integrator and cost level. The other metrics are supporting evidence.
+- **Scenario (v1)**: LEO 400 km, i = 51.6°, 70×70 field, 7 days (~111 orbits). SSO/MEO/Molniya and 1/30-day
+  horizons are deferred.
+
+### 3.5.1 Ensemble size N — default 20,000, with a sequential stopping rule
+Owner asked for more precision than the originally proposed N = 1e4, with a defence:
+- **Headline ratio.** The spread σ is estimated with relative standard error ≈ 1/√(2N): 0.7 % at 1e4,
+  **0.5 % at 2e4**, 0.2 % at 1e5. The numerator is a *paired* difference against the reference using the
+  same particles, so its sampling noise is far smaller (integrator error is strongly correlated across a
+  100 m cloud). Across integrators the ratio spans orders of magnitude, so ±0.5 % is ample.
+- **Supporting metrics.** Correlation entries: SE ≈ (1−ρ²)/√N ≈ 0.007 at 2e4. A tail event with p = 0.05:
+  relative SE ≈ √((1−p)/(Np)) ≈ 3 % at 2e4 (vs 4 % at 1e4); p = 0.01: ≈ 7 %.
+- **Cost is the binding constraint.** Pre-implementation estimate: a 70×70 acceleration ≈ 10–20 µs; the
+  DOP853 reference at tight tolerance ≈ 2–3×10⁵ evaluations per particle over 7 days ⇒ ~3–5 s per particle.
+  On the current 2-vCPU cloud VM that is ~8–14 h for a 2e4 reference ensemble and ~40–70 h for 1e5. 1e5 is
+  not affordable here; 2e4 is, if the reference ensemble is computed once and cached.
+- **Rule:** propagate in batches of 5,000 (common seeds) and stop once the headline ratio's bootstrap SE
+  < 1 % and the covariance-diagonal SE < 1 %; default target 2e4, hard cap 1e5. The achieved SE is reported
+  with every result. Story 10 measures the real per-particle cost and records the final N in decisions.md.
 
 ### 3.6 Performance measurement
 - **Google Benchmark** (C++): `BM_Accel/<degree>` (force evaluation vs truncation), `BM_Step/<integrator>`,
@@ -137,7 +156,7 @@ That gives each method a curve, not a point, on the work-precision plane.
 
 ```
 projects/prob-orbit-prop/
-  pyproject.toml            # scikit-build-core + pybind11; pip install -e .[dev] builds the extension
+  pyproject.toml            # scikit-build-core + pybind11; [tool.black] + ruff lint config; pip install -e .[dev]
   CMakeLists.txt
   cpp/
     include/pop/            # vec, frames, force (ForceModel, EGM2008), integrators, ensemble, stm
@@ -191,7 +210,6 @@ Each story = one issue, one branch (`feat/prob-orbit-prop-<desc>`), one PR (< ~4
 6. DOPRI5 and DOP853 (dense output), cross-checked vs SciPy.
 7. Symplectic: Verlet, Yoshida 4/6; Jacobi-integral diagnostics.
 8. Reference solution + convergence-order test suite.
-9. *(stretch)* Gauss–Jackson or RKN 12(10); Kepler-split (Wisdom–Holman-style) integrator.
 
 **M3 — Probabilistic propagation**
 10. Ensemble sampler (RTN covariance) + OpenMP batch propagator with common random numbers.
@@ -202,6 +220,8 @@ Each story = one issue, one branch (`feat/prob-orbit-prop-<desc>`), one PR (< ~4
 13. Google Benchmark suite (§3.6), JSON outputs.
 14. `perf` scripts + work-precision and distribution-error-vs-cost plots.
 15. Results report `docs/results.md` (+ published HTML report if useful).
+
+**Later (not v1)** — Gauss–Jackson or RKN 12(10); Kepler-split (Wisdom–Holman-style) integrator; SSO/MEO/Molniya; 1- and 30-day horizons.
 
 **M5 — Drag (later, separate branch/PRs)**
 16. `Atmosphere` interface + exponential model; `DragForce` with ballistic coefficient; tests vs analytic decay rate.
@@ -221,16 +241,16 @@ Each story = one issue, one branch (`feat/prob-orbit-prop-<desc>`), one PR (< ~4
 - **Simplified Earth orientation**: uniform rotation is not real GCRF↔ITRF; fine for an integrator
   comparison (all methods see the same field), not for operational accuracy claims.
 
-## 8. Open questions for the owner
-1. **Approve C++ core + Python bindings** (deviation from Python default), rationale in §4?
-2. **EGM2008 data**: can you enable PyPI and `earth-info.nga.mil` (or `icgem.gfz-potsdam.de`) in the cloud
-   environment's network settings? And is it OK to commit a truncated coefficient table (degree ≤ 120,
-   roughly 0.5 MB text) so tests don't need the network?
-3. **Which probability matters most to you?** Default plan reports all of §3.5, with the headline being
-   the integrator-error-to-spread ratio plus a conjunction-style collision probability. If you have a
-   specific use case (conjunction Pc, re-entry, station-keeping box), tell me and I'll make it the headline.
-4. **Defaults**: 70×70 field, LEO/SSO/MEO/Molniya scenarios, 1/7/30-day horizons, N = 1e4 particles — OK?
-5. **Stretch integrators** (Gauss–Jackson, Kepler-split): in v1 or later?
+## 8. Owner answers (2026-11-01)
+1. C++20 core + pybind11: **approved**. Python is formatted with **black** (owner requirement); `ruff check`
+   still lints. C++ formatting: clang-format, Google style (proposal).
+2. Committing a truncated EGM2008 table (≤ 120×120): **approved**. Owner will enable PyPI and the NGA/ICGEM
+   host in the network settings; story 2 is blocked until then.
+3. Headline: **integrator error vs ensemble spread**.
+4. **70×70, LEO only, 7 days**; N chosen and defended in §3.5.1 (20,000 with a stopping rule).
+5. Gauss–Jackson / Kepler-split: **later**.
+
+No blocking questions remain. Story 10 may revise N once real cost is measured (§3.5.1).
 
 ## 9. References
 - Pavlis, N. K., Holmes, S. A., Kenyon, S. C., Factor, J. K. (2012). *The development and evaluation of the
