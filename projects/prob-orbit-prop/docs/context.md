@@ -1,6 +1,6 @@
 # Context — prob-orbit-prop
 
-Feedback last read: 2026-11-01 (owner answers given in session; PR #2 had no GitHub comments yet)
+Feedback last read: 2026-11-01T20:35Z (owner comment on PR #2 read and applied; PR #2 was closed unmerged)
 
 ## Current state
 - Design in `design.md`, revised with the owner's answers (PR #2). **Nothing implemented yet.**
