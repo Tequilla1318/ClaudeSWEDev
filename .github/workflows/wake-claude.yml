@@ -1,0 +1,48 @@
+name: Wake Claude on merge
+
+# When a PR is merged into main or a side-project branch (project/*), start a
+# Claude Code cloud session through its scheduled task's API trigger.
+# Requires two repository secrets (Settings -> Secrets and variables -> Actions):
+#   CLAUDE_FIRE_URL    the task's Fire URL
+#   CLAUDE_FIRE_TOKEN  the task's API token
+# If they are not set, the job skips without failing.
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+      - "project/**"
+
+permissions: {}
+
+jobs:
+  wake:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Fire Claude scheduled task
+        env:
+          FIRE_URL: ${{ secrets.CLAUDE_FIRE_URL }}
+          FIRE_TOKEN: ${{ secrets.CLAUDE_FIRE_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+        run: |
+          if [ -z "$FIRE_URL" ] || [ -z "$FIRE_TOKEN" ]; then
+            echo "CLAUDE_FIRE_URL / CLAUDE_FIRE_TOKEN not set; skipping."
+            exit 0
+          fi
+          body=$(jq -n \
+            --arg n "$PR_NUMBER" --arg t "$PR_TITLE" \
+            --arg b "$BASE_REF" --arg s "$MERGE_SHA" \
+            '{text: ("merged_pr=" + $n + "\nbase=" + $b + "\nmerge_sha=" + $s + "\ntitle=" + $t)}')
+          response=$(curl -sS --fail-with-body -X POST "$FIRE_URL" \
+            -H "Authorization: Bearer $FIRE_TOKEN" \
+            -H "anthropic-beta: experimental-cc-routine-2026-04-01" \
+            -H "anthropic-version: 2023-06-01" \
+            -H "Content-Type: application/json" \
+            -d "$body")
+          echo "$response" | jq -r '"Claude session: " + (.claude_code_session_url // "unknown")'
