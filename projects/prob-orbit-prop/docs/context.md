@@ -2,9 +2,14 @@
 
 Feedback last read: 2026-11-01T20:35Z (owner comment on PR #2 read and applied; PR #2 was closed unmerged)
 
+## Branch model
+**Side project: lives on `project/prob-orbit-prop`; never merged to `main`** (owner, 2026-11-01).
+Cut story branches from `project/prob-orbit-prop` and open PRs against it. To pick up repo-wide changes
+(CI, CLAUDE.md) merge `origin/main` into the project branch via a `chore/` PR.
+
 ## Current state
 - Design in `design.md`, revised with the owner's answers (PR #2). **Nothing implemented yet.**
-  Merging PR #2 = design approved.
+  Merging PR #2 into `project/prob-orbit-prop` = design approved.
 
 ## v1 scope in one line
 LEO 400 km / 51.6°, EGM2008 70×70, 7 days, N = 20,000 (stopping rule, §3.5.1); integrators RK4, RK4+Richardson,

@@ -2,6 +2,8 @@
 
 Status: **revised after owner review 2026-11-01** (owner answered §8; approval = merging this PR)
 Project dir: `projects/prob-orbit-prop/`
+Branch model: **side project — lives on `project/prob-orbit-prop`, never merged to `main`.** Every story PR
+targets `project/prob-orbit-prop`; story branches are cut from it.
 
 ## 1. Goal
 
@@ -195,7 +197,8 @@ GitHub, pinned by tag.
 | Monte Carlo metrics | Unit tests on synthetic distributions with known distances (e.g. two Gaussians) |
 
 ## 6. Milestones and user stories
-Each story = one issue, one branch (`feat/prob-orbit-prop-<desc>`), one PR (< ~400 lines).
+Each story = one issue, one branch (`feat/prob-orbit-prop-<desc>`, cut from `project/prob-orbit-prop`), one PR into
+`project/prob-orbit-prop` (< ~400 lines). Nothing merges to `main`.
 
 **M0 — Design** (this PR)
 

@@ -24,3 +24,5 @@ Append-only. Format: date — decision — why — alternatives rejected.
   rejected: 1e5 fixed (~40–70 h), 1e4 fixed (owner wanted more precision).
 - 2026-11-01 — Truncated EGM2008 table (≤ 120×120) committed with provenance + SHA-256 — owner approved;
   tests run offline — rejected: download at test time.
+- 2026-11-01 — Side project on long-lived branch `project/prob-orbit-prop`, never merged to `main`; story PRs
+  target that branch — owner instruction — rejected: merging the project into main.
