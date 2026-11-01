@@ -15,6 +15,16 @@ This repo is a workspace for many independent software projects. The owner descr
   its own `README.md`, dependency file (e.g. `pyproject.toml`), `src/`, and `tests/`.
 - Shared tooling (CI, templates) lives in `.github/`.
 
+## Project context (memory between sessions)
+Sessions start from a fresh clone and remember nothing else, so each project keeps its own context:
+- `projects/<name>/docs/context.md` — current state: what's built, what's in progress, what's next,
+  known issues and gotchas. Keep it short and current; rewrite stale parts rather than appending.
+- `projects/<name>/docs/decisions.md` — append-only log of design decisions:
+  date, decision, why, alternatives rejected.
+
+**At the start of a session** on a project, read both files before doing anything else.
+**In every PR**, update `context.md` (and `decisions.md` if a decision was made) as part of the change.
+
 ## Agile workflow
 1. **Backlog = GitHub issues.** Each feature is a user story using the "User story" issue template,
    with acceptance criteria. Larger efforts are an epic issue that links its stories.
