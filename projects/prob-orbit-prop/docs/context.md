@@ -1,5 +1,7 @@
 # Context — prob-orbit-prop
 
+Feedback last read: 2026-11-01 (owner answers given in session; PR #2 had no GitHub comments yet)
+
 ## Current state
 - Design in `design.md`, revised with the owner's answers (PR #2). **Nothing implemented yet.**
   Merging PR #2 = design approved.
