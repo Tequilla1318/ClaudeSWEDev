@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  discover:
+    name: Find Python projects
+    runs-on: ubuntu-latest
+    outputs:
+      projects: ${{ steps.find.outputs.projects }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: find
+        run: |
+          projects=$(find projects -mindepth 2 -maxdepth 2 -name pyproject.toml -printf '%h\n' 2>/dev/null \
+            | sort | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "projects=${projects:-[]}" >> "$GITHUB_OUTPUT"
+          echo "Found: ${projects:-[]}"
+
+  test:
+    name: ${{ matrix.project }}
+    needs: discover
+    if: needs.discover.outputs.projects != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project: ${{ fromJson(needs.discover.outputs.projects) }}
+    defaults:
+      run:
+        working-directory: ${{ matrix.project }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff pytest
+          if grep -q '^\s*dev\s*=' pyproject.toml; then pip install -e ".[dev]"; else pip install -e .; fi
+      - name: Lint
+        run: |
+          ruff check .
+          ruff format --check .
+      - name: Test
+        run: pytest -q
