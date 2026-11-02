@@ -46,7 +46,8 @@ owner gets a report of what was found. **Security is the top priority.**
 11. **Phone app (later, not now):** talk to Claude while walking; Claude assigns tasks to Gemini and
     works on GitHub. All work lands as PRs.
 12. **PR approval by spoken passphrase.** Claude explains the PR; the owner says a secret phrase;
-    if it matches, the PR is approved/merged. Applies on laptop and phone.
+    if it matches, nothing merges yet: Claude must then **ask/clarify where it merges** (target
+    branch) and the owner confirms before the merge happens. Applies on laptop and phone.
 
 ## Proposed smallest proof of concept (to confirm in the design doc)
 **Text-only consultation loop.** A web chat room where the owner types a request; Claude asks
@@ -72,7 +73,11 @@ with Claude reviewing → periodic check-ins → phone app with voice PR approva
   stored hash (argon2/bcrypt, never the plain phrase), and **strips the passphrase before any text
   reaches Claude or Gemini or the logs**. So no model ever sees it, and a prompt-injected model can't
   leak it or fake a match. Also: approval names the PR number (a recording can't approve a different
-  PR), the gate reads back the PR title before merging, attempts are rate-limited with lockout, and it
+  PR); a correct phrase only creates a **pending approval** (PR number + target branch, expires in a
+  few minutes); Claude then states the target branch, which the gate reads from GitHub rather than
+  from Claude, and the owner's "yes" completes the merge. Changing the target branch cancels the
+  pending approval and needs the phrase again, so an injected model can't redirect a merge.
+  The gate reads back the PR title before merging, attempts are rate-limited with lockout, and it
   only works from a logged-in session (second factor). Weaknesses to accept or mitigate: a phrase
   spoken aloud can be overheard or recorded, and cloud speech-to-text sees it (on-device STT for the
   approval step avoids that); a rotating or one-time phrase would be stronger.

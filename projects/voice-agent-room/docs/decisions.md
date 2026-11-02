@@ -64,3 +64,9 @@ Entries marked "(proposed)" are Claude's suggestions awaiting the owner's approv
   removed from the transcript before any model or log sees it; approval must name the PR number,
   is rate-limited, and only works from a logged-in session — models are injectable and must never
   hold or judge the secret — rejected: Claude checking the passphrase itself.
+- 2026-11-01 — A correct passphrase does not merge on its own; Claude must then confirm the target
+  branch with the owner, and the merge happens only after the owner's confirmation — owner
+  requirement — rejected: merging immediately on passphrase.
+- 2026-11-01 — (proposed) The passphrase creates a short-lived pending approval bound to PR number +
+  target branch; the branch shown is read from GitHub by the gate, and any change of target branch
+  voids the approval and needs the phrase again — stops a model from redirecting a merge.
