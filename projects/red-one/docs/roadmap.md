@@ -1,13 +1,13 @@
-# Roadmap — voice-agent-room ("Project Red One")
+# Roadmap — red-one ("Project Red One")
 
-Status: **proposed**, for the owner's review in PR #24. The design doc (`design.md`) will detail
+Status: **approved in outline** (PR #24, owner: "Sure, let's use the code spaces for now"). The design doc (`design.md`) will detail
 M1 into user stories; later milestones are detailed when they are next.
 
 ## Rules every milestone follows
 - **Usable on its own.** Each milestone ends with something the owner can actually use, even if
   nothing after it is ever built.
 - **Tagged release.** When a milestone is done, the project branch is tagged
-  (`voice-agent-room-v0.1.0`, `-v0.2.0`, …) with release notes, so the owner can go back to any
+  (`red-one-v0.1.0`, `-v0.2.0`, …) with release notes, so the owner can go back to any
   working level with one command or one click on GitHub.
 - **"How to test it" for the owner** (manual, in the browser, nothing on the Mac) **plus automated
   tests in CI** (pytest, models stubbed so CI never spends API credits or needs keys).
@@ -20,11 +20,12 @@ M1 into user stories; later milestones are detailed when they are next.
 - **Open-source ready from day one:** self-contained package, "bring your own API keys", nothing
   specific to the owner hard-coded, so it can later be published or run as a server.
 
-## Where it runs before hosting is decided
-Until M3, the owner uses it through **GitHub Codespaces**: a cloud machine opened from the GitHub
-website, with the room's page forwarded to the owner's browser. Nothing is installed or stored on
-the Mac, API keys live in Codespaces secrets, and personal GitHub accounts get a free monthly
-allowance. (Proposed; alternative is to decide hosting now and skip this.)
+## Where it runs
+**GitHub Codespaces** (owner decision, PR #24): a cloud machine opened from the GitHub website. The
+room runs on localhost inside the codespace and is forwarded to the owner's browser as a private
+port. Nothing is installed or stored on the Mac, API keys live in Codespaces secrets, and the free
+monthly allowance applies (usage is blocked, not billed, when it runs out without a payment method).
+**No paid hosting.**
 
 ---
 
@@ -48,20 +49,21 @@ review, and the relayed summary; ask "what did Gemini actually say?".
 **Automated:** routing/delegation tests with stubs; one optional live smoke test, run only when keys
 are present.
 **Security:** content from Gemini and the web treated as untrusted data (prompt-injection tests);
-free-tier vs paid Gemini setting.
+**sensitive data never goes to Gemini**: each delegation is tagged, unknown means sensitive, and the
+router refuses sensitive delegations to anyone but Claude.
 **Built for a bigger team later:** each AI is a "team member" defined by config (provider, model,
 role, voice, spending cap). Adding GPT, Grok or anything else later = a new config entry plus a
 small provider adapter, not a rewrite.
 
-## M3 — Hosted, with a login
-**What you get:** the room at a private web address, no Codespace step. Works in any browser,
-including your phone's.
-**Useful because:** open it anywhere in seconds.
-**How you test it:** visit the URL, log in, check wrong passwords are rejected and locked out, check
-it works on the phone browser.
+## M3 — Locked down and reachable from anywhere (still free)
+**What you get:** the room protected by its own login on top of GitHub's, sessions that time out,
+and a quick way to start it from any browser, including your phone's, without touching code.
+**Useful because:** open it anywhere in seconds without weakening security.
+**How you test it:** start the codespace from your phone's browser, open the room, log in, check
+wrong passwords are rejected and locked out, check the session expires.
 **Automated:** auth tests, rate limiting, security headers.
-**Security:** HTTPS, proper login (not a shared password), session timeouts, a review against the
-OWASP Top 10.
+**Security:** a review against the OWASP Top 10. Always-on free hosting is evaluated here only if
+Codespaces start-up time becomes a real problem; no paid hosting.
 
 ## M4 — Voice in the room, with a human-sounding voice and a "living" UI
 **What you get:** a push-to-talk mic button; Claude replies in a **natural, human-sounding voice**
@@ -84,7 +86,7 @@ voice only if the owner chooses to, via the provider's consent flow. Provider ch
 threat model (what text leaves the system).
 
 ## M5 — "Red One, boot up"
-**What you get:** the `redone` command opens an armed Chrome window; saying the wake phrase starts
+**What you get:** the `redone` command opens an armed Chrome window; saying **"Daddy's home"** starts
 the conversation, "shut down" ends it and closes the window.
 **Useful because:** hands-free start.
 **How you test it:** run the one command, say the phrase, check it wakes; check it ignores other

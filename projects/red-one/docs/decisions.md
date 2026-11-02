@@ -1,4 +1,4 @@
-# Decisions — voice-agent-room
+# Decisions — red-one
 
 Append-only. Format: date — decision — why — alternatives rejected.
 Entries marked "(proposed)" are Claude's suggestions awaiting the owner's approval.
@@ -90,12 +90,21 @@ Entries marked "(proposed)" are Claude's suggestions awaiting the owner's approv
   voice, spending cap) behind a provider adapter, so new models are additive; Claude moderates who
   speaks, and members may address the owner directly only via Claude's floor control — rejected:
   hard-coding Claude + Gemini.
-- 2026-11-01 — Learning first: the owner must always understand what the agents are doing and why;
-  explanations and "why" for every plan step, finding and PR outrank speed — owner requirement —
-  rejected: maximising autonomous throughput.
-- 2026-11-01 — Far-future option: replace cloud LLMs with local models on an isolated network
-  without tying up the laptop — owner intention; kept possible via the team-member/provider config.
-- 2026-11-01 — **Supersedes the two entries above:** local models are dropped from the plan, and
-  "learning first" is replaced by "ask why anytime": the owner can ask why during status updates and
-  Claude drills down on demand; no blanket explanations on every step — owner correction ("learning
+- 2026-11-01 — "Ask why anytime": the owner can ask why during status updates (or any time) and
+  Claude drills down on demand; no blanket explanations on every step — owner requirement ("learning
   everything" is too broad and previously made an AI useless) — rejected: mandatory explanations.
+- 2026-11-02 — Project renamed `red-one`; long-lived branch `project/red-one` (copied from
+  `project/voice-agent-room`, which the owner can delete) — owner answer on PR #24.
+- 2026-11-02 — Wake phrase "Daddy's home" — owner answer on PR #24.
+- 2026-11-02 — No spending money; run on localhost inside GitHub Codespaces for now (approves the
+  Codespaces proposal and supersedes the "hosted service" assumption) — owner answer on PR #24 —
+  rejected: paid hosting.
+- 2026-11-02 — Wake word in an armed Chrome window (approves the earlier proposal) — owner answer.
+- 2026-11-02 — Speech-to-text may go to a cloud provider if it is free — owner answer.
+- 2026-11-02 — Sensitive data is never delegated: only Claude handles it; Gemini (free tier) gets
+  non-sensitive work only — owner answer — rejected: paying for Gemini's private tier.
+- 2026-11-02 — (proposed) Sensitivity routing enforced in code: delegations carry a sensitivity tag,
+  unknown defaults to sensitive, the owner can mark a project/message private, and the router refuses
+  sensitive delegations to non-Claude members — a prompt alone can be ignored or injected.
+- 2026-11-02 — Deleted two cancelled entries (learning-first, local models) at the owner's request,
+  an exception to append-only.
