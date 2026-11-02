@@ -98,7 +98,9 @@ security gate and a tagged release): see [`roadmap.md`](roadmap.md).
 6. **Name:** rename project and branch to `red-one`? Cheap now, before anything merges.
 
 ## Long-term goal
-If it works well, the owner will **open-source the package or run it as a server** for others.
+Vision: a large multi-model "engineering team" room (Claude, Gemini, GPT, Grok, …), each member with
+its own voice and role, speaking up when needed then returning to work, with Claude moderating
+(see roadmap.md). Today: Claude + Gemini only. If it works well, the owner will **open-source the package or run it as a server** for others.
 So: self-contained package, bring-your-own-keys, no owner-specific hard-coding, security documented.
 
 ## Known issues / gotchas

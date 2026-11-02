@@ -82,3 +82,11 @@ Entries marked "(proposed)" are Claude's suggestions awaiting the owner's approv
 - 2026-11-01 — (proposed) Choose the TTS voice by a blind listening test of 3–4 candidates (hosted
   services vs an open-weight in-browser model), weighing quality, cost and privacy; no cloning of a
   real person's voice without consent.
+- 2026-11-01 — Voice must not resemble anyone the owner knows; generic human-sounding is preferred
+  but optional — owner preference.
+- 2026-11-01 — Each team member gets a distinct voice; long-term vision is a large multi-model team
+  room where members speak up and return to work — owner vision.
+- 2026-11-01 — (proposed) From M2, AIs are config-defined "team members" (provider, model, role,
+  voice, spending cap) behind a provider adapter, so new models are additive; Claude moderates who
+  speaks, and members may address the owner directly only via Claude's floor control — rejected:
+  hard-coding Claude + Gemini.

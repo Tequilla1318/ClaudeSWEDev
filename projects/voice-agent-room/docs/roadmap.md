@@ -46,6 +46,9 @@ review, and the relayed summary; ask "what did Gemini actually say?".
 are present.
 **Security:** content from Gemini and the web treated as untrusted data (prompt-injection tests);
 free-tier vs paid Gemini setting.
+**Built for a bigger team later:** each AI is a "team member" defined by config (provider, model,
+role, voice, spending cap). Adding GPT, Grok or anything else later = a new config entry plus a
+small provider adapter, not a rewrite.
 
 ## M3 — Hosted, with a login
 **What you get:** the room at a private web address, no Codespace step. Works in any browser,
@@ -59,7 +62,9 @@ OWASP Top 10.
 
 ## M4 — Voice in the room, with a human-sounding voice and a "living" UI
 **What you get:** a push-to-talk mic button; Claude replies in a **natural, human-sounding voice**
-(not robotic, not a recognisable real person). The page gets a proper voice-first look: an animated
+(generic: not robotic, and not anyone the owner knows or any recognisable person). Human-sounding is
+preferred because it makes talking to it easier, but it's a nice-to-have, not a blocker.
+**Each team member gets its own distinct voice**, so the owner can tell who's talking. The page gets a proper voice-first look: an animated
 presence that reacts while you talk and while Claude speaks, live captions, and a clear indicator of
 who is speaking (Claude or Gemini, possibly with different voices).
 **Useful because:** a conversation that feels like talking to a colleague.
@@ -116,6 +121,14 @@ self-hosting instructions, and the threat model; or deployed as a server for oth
 
 ---
 
+## Long-term vision (not scheduled)
+**A full engineering team room:** many models (Claude, Gemini, GPT, Grok, …), each with its own
+role and voice, working in the background, speaking up when they have something to say, then going
+back to work. Claude stays the moderator: it decides who gets the floor so the room doesn't turn
+into everyone talking at once, and the owner can address any member directly. Enabled by the
+team-member abstraction from M2. Cost note: this needs **API keys (pay-per-use, with spending
+caps)**, not consumer subscriptions like ChatGPT Plus, which generally don't include API access.
+
 ## Not in any milestone yet
-Discord bridge, more models (Grok etc.), a progress dashboard beyond the chat, and starting a
+Discord bridge, a progress dashboard beyond the chat, and starting a
 session on the laptop from the phone.
