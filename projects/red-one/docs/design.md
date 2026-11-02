@@ -19,7 +19,8 @@ spending cap; Codespaces setup; CI with lint, tests and security scans; a threat
 
 **Out (later milestones):** Gemini and delegation (M2), app-level login (M3), voice (M4), wake
 phrase (M5), GitHub code execution (M6), passphrase approval (M7), phone (M8). Also out: web
-search or any tool use by Claude in M1. "Work" in M1 means Claude reasoning and writing in the
+search, code execution or any other external tool for Claude in M1 (structured replies use tool-call
+format, but nothing outside the app runs). "Work" in M1 means Claude reasoning and writing in the
 conversation (analysis, explanations, designs, pseudo-code), not running code or browsing.
 
 ## 3. What using it looks like
