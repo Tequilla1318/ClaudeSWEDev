@@ -72,7 +72,7 @@ voices; best quality, paid or limited free tier, Claude's replies are sent to th
 open-weight model running in the browser or on the server (e.g. Kokoro; free and private, somewhat
 less expressive). Pick by listening, cost and privacy.
 **Ethics/security:** no cloning of a real person's voice without their consent; the owner's own
-voice only if he chooses to, via the provider's consent flow. Provider choice recorded in the
+voice only if the owner chooses to, via the provider's consent flow. Provider choice recorded in the
 threat model (what text leaves the system).
 
 ## M5 — "Red One, boot up"
