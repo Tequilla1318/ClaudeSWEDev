@@ -95,3 +95,7 @@ Entries marked "(proposed)" are Claude's suggestions awaiting the owner's approv
   rejected: maximising autonomous throughput.
 - 2026-11-01 — Far-future option: replace cloud LLMs with local models on an isolated network
   without tying up the laptop — owner intention; kept possible via the team-member/provider config.
+- 2026-11-01 — **Supersedes the two entries above:** local models are dropped from the plan, and
+  "learning first" is replaced by "ask why anytime": the owner can ask why during status updates and
+  Claude drills down on demand; no blanket explanations on every step — owner correction ("learning
+  everything" is too broad and previously made an AI useless) — rejected: mandatory explanations.

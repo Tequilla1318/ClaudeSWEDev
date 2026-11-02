@@ -39,9 +39,9 @@ owner gets a report of what was found. **Security is the top priority.**
 6. **Models: Claude + Gemini** (a free Gemini Flash-class model). Others (e.g. Grok) only if free and
    useful; expected to stay Claude + Gemini.
 7. **Updates when something important happens**, not a constant stream.
-8. **Learning first.** The owner wants to learn as the agents work and never be "crippled" by not
-   knowing what's going on or why. Claude explains its reasons, teaches on request, and keeps the
-   owner informed of anything important. This outranks speed.
+8. **Ask "why" anytime.** During status updates (or any time) the owner can ask why, and Claude
+   drills down into what's actually going on. Explanations are on demand; the owner doesn't need to
+   learn everything. Claude can also teach a concept when asked.
 9. **Work types:** random research ideas, software engineering, simulations; mostly codeable and
    checkable. Work happens on GitHub; the end product is a report of what was found.
 10. **Chrome, not Safari. Build our own room** (OpenBot rejected).
@@ -102,8 +102,7 @@ security gate and a tagged release): see [`roadmap.md`](roadmap.md).
 ## Long-term goal
 Vision: a large multi-model "engineering team" room (Claude, Gemini, GPT, Grok, …), each member with
 its own voice and role, speaking up when needed then returning to work, with Claude moderating
-(see roadmap.md). Today: Claude + Gemini only. Far future: possibly **local models on an isolated
-network** instead of cloud LLMs, without tying up the laptop. If it works well, the owner will **open-source the package or run it as a server** for others.
+(see roadmap.md). Today: Claude + Gemini only. If it works well, the owner will **open-source the package or run it as a server** for others.
 So: self-contained package, bring-your-own-keys, no owner-specific hard-coding, security documented.
 
 ## Known issues / gotchas
