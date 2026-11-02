@@ -28,3 +28,18 @@
 - **Decision:** `ilc` command starts servers and opens a local FastAPI + static HTML chat page.
   Owner chose browser UI started from the terminal.
 - **Rejected:** Open WebUI (heavy install), terminal-only UI.
+
+## 2026-11-02 — Owner answers to design §10 (PR #38)
+- **Repo is public** → macOS GitHub Actions job for Mac-only paths (S4).
+- **Command name `ilc`** confirmed.
+- **Running on the owner's Mac:** not answered explicitly; owner approved the design ("everything
+  looks good"), so the proposal stands: all development and testing in cloud sessions, the owner runs
+  `install.sh` once and then uses `ilc`.
+- **Memory across conversations:** not answered; default from the design stands — per-conversation
+  lossless memory plus one shared core-memory list. Easy to change before S9.
+
+## 2026-11-02 — S1: standard library only, argparse CLI
+- **Decision:** S1 has no runtime dependencies (argparse, tomllib, dataclasses). Config lives in
+  `~/.ilc/config.toml` (overridable with `$ILC_HOME`); unknown keys and wrong types are errors.
+- **Why:** smaller install for the owner; strict config catches typos instead of silently ignoring them.
+- **Rejected:** Typer/Click (dependency for five subcommands), pydantic-settings (heavy for this).
