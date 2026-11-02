@@ -1,6 +1,7 @@
 # Design: Local LLM fallback ("migration package")
 
-Status: **draft, awaiting owner approval**. No implementation until this PR is approved.
+Status: **parked**. Design kept on `main` for later; no implementation until the owner un-parks it
+(expected when the home server is bought).
 
 ## 1. Goal
 If Claude (or any hosted AI service) becomes unavailable, unaffordable, or undesirable, the owner can
@@ -119,10 +120,13 @@ Order: S1 → S2 → S3 → S5 → S4 → S6 → S7. S1–S3 are useful even bef
 - **Moving target.** Agents and models change fast; the eval harness, not this doc, picks them.
 - **Hardware cost** is the owner's call (see open questions).
 
-## 10. Open questions for the owner
-1. **Hardware:** existing machine, or buying one? GPU (which, how much VRAM) or Apple Silicon
-   (how much unified memory)? Budget?
-2. **Mode:** cold standby (only used if Claude is unavailable) or hybrid (local handles small stories
-   now, Claude the hard ones)?
-3. **Repo visibility:** OK to make ClaudeSWEDev private? Strongly recommended before registering a runner.
-4. **Scope of the fallback:** code only, or also design docs and reviews?
+## 10. Owner answers and open questions
+Answered (2026-11-02):
+- **Repo visibility:** OK to make ClaudeSWEDev private (owner does this in GitHub settings).
+- **Hardware:** owner plans to buy a dedicated machine for this.
+- **Timing:** parked for now; design only.
+
+Still open (decide when un-parking):
+1. Which machine: GPU (and VRAM) or Apple Silicon (and unified memory), and budget. Use §5.3 as a guide.
+2. Mode: cold standby or hybrid.
+3. Scope of the fallback: code only, or also design docs and reviews.
