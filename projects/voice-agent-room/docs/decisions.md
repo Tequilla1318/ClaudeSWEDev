@@ -22,3 +22,22 @@ Entries marked "(proposed)" are Claude's suggestions awaiting the owner's approv
 - 2026-11-01 — (proposed) First proof of concept is text-only: "hey gang" gating plus Claude and
   Gemini replying in one thread — smallest slice that tests the core loop in the cloud — rejected:
   starting with the wake word (needs a mic, untestable in the cloud).
+- 2026-11-01 — Human-in-the-loop, not autonomous: the primary AI clarifies, proposes a plan, waits for
+  approval, reports continuously and pauses when blocked — owner requirement (ChatGPT chat) —
+  rejected: agents that work on a goal unsupervised.
+- 2026-11-01 — Listening is manually armed by one Terminal command and stopped by a phrase; nothing
+  installed, no personal files read or modified on the Mac — owner requirement — rejected: an
+  always-on login service or a native Mac app.
+- 2026-11-01 — Primary AI is the owner's single point of contact; specialist agents report to it;
+  an independent supervisor model monitors them — owner requirement — rejected: every agent
+  speaking to the owner directly.
+- 2026-11-01 — (proposed) Wake-word detection runs inside an armed Chrome app window, not a Terminal
+  script — Chrome's sandbox blocks file access, which a script running as the user cannot guarantee;
+  nothing to install — rejected: Python + Vosk script, Swift menu-bar app (ChatGPT's suggestion).
+- 2026-11-01 — (proposed) A deterministic orchestrator enforces permissions; merges, deploys and
+  scope changes always need explicit owner approval — an LLM supervisor is not a security boundary —
+  rejected: letting the supervisor or primary AI authorise actions.
+- 2026-11-01 — (proposed) Proof of concept becomes a text-only consultation loop (clarify → plan →
+  approve → one delegated answer from a second model), superseding the "hey gang" text-room PoC —
+  the owner's core value is the human-in-the-loop conversation; build conversation first, agents
+  second — rejected: starting with multi-agent or voice.
