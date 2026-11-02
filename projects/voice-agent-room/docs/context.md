@@ -44,8 +44,9 @@ owner gets a report of what was found. **Security is the top priority.**
    checkable. Work happens on GitHub; the end product is a report of what was found.
 10. **Chrome, not Safari. Build our own room** (OpenBot rejected).
 11. **Phone app (later, not now):** talk to Claude while walking; Claude assigns tasks to Gemini and
-    works on GitHub; Claude summarises each PR and the owner **approves it by voice**, which then
-    approves/merges the PR automatically.
+    works on GitHub. All work lands as PRs.
+12. **PR approval by spoken passphrase.** Claude explains the PR; the owner says a secret phrase;
+    if it matches, the PR is approved/merged. Applies on laptop and phone.
 
 ## Proposed smallest proof of concept (to confirm in the design doc)
 **Text-only consultation loop.** A web chat room where the owner types a request; Claude asks
@@ -66,10 +67,17 @@ with Claude reviewing → periodic check-ins → phone app with voice PR approva
   improve its products, human reviewers may read them, and users should not send sensitive,
   confidential or personal information; paid-tier prompts are not used for training. Given the
   security priority: free tier only for non-sensitive research, or pay for Gemini.
-- **Voice PR approval must be enforced by code, not by the LLM.** Claude can summarise and ask, but a
-  deterministic layer performs the merge only after an authenticated, explicit approval from the
-  owner, with a read-back of the PR number and a confirm step. Claude can never "decide" the owner
-  approved. Guards against misheard words and prompt injection from web pages or files the agents read.
+- **Passphrase approval is checked by code, never by the LLM.** The speech transcript goes to a
+  deterministic gate first. The gate looks for "approve PR <number>" + passphrase, compares against a
+  stored hash (argon2/bcrypt, never the plain phrase), and **strips the passphrase before any text
+  reaches Claude or Gemini or the logs**. So no model ever sees it, and a prompt-injected model can't
+  leak it or fake a match. Also: approval names the PR number (a recording can't approve a different
+  PR), the gate reads back the PR title before merging, attempts are rate-limited with lockout, and it
+  only works from a logged-in session (second factor). Weaknesses to accept or mitigate: a phrase
+  spoken aloud can be overheard or recorded, and cloud speech-to-text sees it (on-device STT for the
+  approval step avoids that); a rotating or one-time phrase would be stronger.
+- **GitHub detail:** the account that opens a PR can't approve its own PR, so "approve" will mean
+  "merge" by the bot account, or a second GitHub account does the review. Settle in the design doc.
 - Other LLMs via **official APIs**, not by automating consumer chat sites.
 - **Project state store** (brief, decisions, tasks, open questions) is the source of truth, not
   chat history.

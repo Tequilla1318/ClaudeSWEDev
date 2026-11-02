@@ -58,3 +58,9 @@ Entries marked "(proposed)" are Claude's suggestions awaiting the owner's approv
 - 2026-11-01 — (proposed) Gemini free tier used only for non-sensitive work (Google may use free-tier
   data and human reviewers may read it); paid tier if anything sensitive is involved — security
   priority — rejected: sending everything to the free tier.
+- 2026-11-01 — PR approval by spoken passphrase after Claude explains the PR — owner requirement —
+  rejected: tap-to-approve only.
+- 2026-11-01 — (proposed) The passphrase is verified by deterministic code against a stored hash and
+  removed from the transcript before any model or log sees it; approval must name the PR number,
+  is rate-limited, and only works from a logged-in session — models are injectable and must never
+  hold or judge the secret — rejected: Claude checking the passphrase itself.
