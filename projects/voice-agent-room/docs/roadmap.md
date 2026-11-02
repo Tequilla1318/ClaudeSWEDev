@@ -57,12 +57,23 @@ it works on the phone browser.
 **Security:** HTTPS, proper login (not a shared password), session timeouts, a review against the
 OWASP Top 10.
 
-## M4 — Voice in the room
-**What you get:** a push-to-talk mic button; Claude can optionally speak its replies.
-**Useful because:** talk instead of typing.
+## M4 — Voice in the room, with a human-sounding voice and a "living" UI
+**What you get:** a push-to-talk mic button; Claude replies in a **natural, human-sounding voice**
+(not robotic, not a recognisable real person). The page gets a proper voice-first look: an animated
+presence that reacts while you talk and while Claude speaks, live captions, and a clear indicator of
+who is speaking (Claude or Gemini, possibly with different voices).
+**Useful because:** a conversation that feels like talking to a colleague.
 **How you test it:** hold the button, ask something, check the transcript is right and the reply
-plays.
-**Automated:** speech-to-text tests on recorded audio clips (the cloud has no mic).
+sounds natural; compare 3–4 candidate voices in a blind listening test and pick one.
+**Automated:** speech-to-text tests on recorded audio clips (the cloud has no mic); TTS output checks
+(audio returned, duration sane, captions match text).
+**Voice options to compare:** hosted natural-TTS services (e.g. ElevenLabs, OpenAI, Google/Gemini
+voices; best quality, paid or limited free tier, Claude's replies are sent to that provider) vs an
+open-weight model running in the browser or on the server (e.g. Kokoro; free and private, somewhat
+less expressive). Pick by listening, cost and privacy.
+**Ethics/security:** no cloning of a real person's voice without their consent; the owner's own
+voice only if he chooses to, via the provider's consent flow. Provider choice recorded in the
+threat model (what text leaves the system).
 
 ## M5 — "Red One, boot up"
 **What you get:** the `redone` command opens an armed Chrome window; saying the wake phrase starts

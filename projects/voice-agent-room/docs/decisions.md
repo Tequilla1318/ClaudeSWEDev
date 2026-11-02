@@ -77,3 +77,8 @@ Entries marked "(proposed)" are Claude's suggestions awaiting the owner's approv
 - 2026-11-01 — (proposed) Milestones M1–M9 as in roadmap.md, each tagged as a release and gated by a
   security checklist; GitHub Codespaces as the run environment until hosting is decided (M3) —
   nothing on the Mac, usable from M1 — rejected: deciding hosting before the first usable version.
+- 2026-11-01 — Replies spoken in a natural, human-sounding voice (not robotic, not a random real
+  person), with a voice-first animated UI — owner requirement — folded into M4.
+- 2026-11-01 — (proposed) Choose the TTS voice by a blind listening test of 3–4 candidates (hosted
+  services vs an open-weight in-browser model), weighing quality, cost and privacy; no cloning of a
+  real person's voice without consent.
