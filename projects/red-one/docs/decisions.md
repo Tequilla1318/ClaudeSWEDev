@@ -117,3 +117,9 @@ Entries marked "(proposed)" are Claude's suggestions awaiting the owner's approv
 - 2026-11-02 — Red One's Claude uses an API key, not the owner's Pro sign-in — Agent SDK docs require
   API-key auth for apps built on Claude; Pro sign-in would risk the account — rejected: powering the
   app with the Pro subscription (owner's request). M1 develops in stub mode until a key exists.
+- 2026-11-02 — Runtime dependencies pinned exactly (fastapi 0.162.0, uvicorn 0.54.0), bumped only in
+  PRs; ruff's bandit `S` rules on from day one; API docs pages disabled (they load CDN scripts the
+  CSP forbids) — supply-chain and attack-surface reduction — rejected: version ranges, `uvicorn[standard]`.
+- 2026-11-02 — Security CI is a separate workflow living only on `project/red-one`
+  (gitleaks-action, free for personal accounts; pip-audit) — keeps `main`'s shared CI untouched —
+  rejected: editing the repo-wide ci.yml.
