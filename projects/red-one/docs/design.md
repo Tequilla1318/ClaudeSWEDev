@@ -1,6 +1,6 @@
 # Design — red-one, Milestone 1: "Careful Claude" (text)
 
-Status: **draft for owner review.** No implementation until approved.
+Status: **approved** (PR #26, 2026-11-02); owner answers folded in (§8).
 Scope: M1 only. Later milestones are outlined in [`roadmap.md`](roadmap.md) and get their own
 design section when they're next.
 
@@ -89,10 +89,18 @@ A state machine in plain Python. **Code, not Claude, decides which state we're i
 ```toml
 [members.claude]
 provider = "anthropic"
-model = "claude-haiku-5-5"   # cheapest; switch to "claude-sonnet-5-5" for harder topics
+model = "claude-haiku-5-5"            # default for every turn
+escalate_to = ["claude-sonnet-5-5", "claude-opus-5-5"]
+escalate_without_asking = ["claude-sonnet-5-5"]
 role = "lead"
 monthly_cap_usd = 5.00
 ```
+
+- **Start on Haiku, step up when the task needs it** (owner, PR #26). Claude can call an
+  `escalate(model, reason)` tool for the current step. Code checks the model is in `escalate_to`
+  and that the budget allows it. Sonnet is allowed automatically and shown to the owner
+  ("⬆ using Sonnet for this step: <reason>"). Opus needs the owner's OK in the chat. Escalation lasts
+  one step, then drops back to Haiku.
 
 - One `Provider` interface (`send(messages, tools) -> ToolCall`) with `AnthropicProvider` and a
   `StubProvider` that replays scripted tool calls for tests. M2 adds `GeminiProvider` and a router;
@@ -104,7 +112,7 @@ monthly_cap_usd = 5.00
   enforce "sensitive stays with Claude" without a data migration.
 
 ### 4.3 Budget
-Token usage from each API response × a price table in config → running monthly spend per member,
+Token usage from each API response × a per-model price table in config → running monthly spend per member,
 stored in SQLite. Before each call: if `spend + worst-case cost of this call > cap`, refuse and tell
 the owner. Also a per-message `max_tokens`. Indicative cost at Haiku 5.5 prices ($0.10 / $0.50 per
 million input/output tokens): a typical turn (~3k tokens in, ~0.5k out) is about $0.0006, so a
@@ -153,7 +161,8 @@ third-party scripts or CDNs. Deliberately plain: the polished voice-first UI is 
    (Python 3.11, port 8765 private, `make run`), security CI job, README run steps.
    *Done when:* codespace starts from GitHub, `make run` serves a "hello" page on a private port, CI green.
 2. **Team config, providers, budget.** `team.toml`, `AnthropicProvider`, `StubProvider`, stub mode,
-   spending cap. *Done when:* tests cover cap refusal and stub replay; live smoke test passes.
+   per-model prices, spending cap, `escalate` rules. *Done when:* tests cover cap refusal, stub replay
+   and escalation rules; live smoke test passes once a key exists (skipped until then).
 3. **Conversation engine.** State machine + tool schemas + owner-only approval.
    *Done when:* the transition table above is fully tested, including the "Claude says approved" case.
 4. **Store.** SQLite schema, resume, export. *Done when:* a project survives an app restart.
@@ -163,37 +172,29 @@ third-party scripts or CDNs. Deliberately plain: the polished voice-first UI is 
    `docs/security.md`, owner test guide, tag `red-one-v0.1.0`.
    *Done when:* owner acceptance test (§6) passes.
 
-## 8. Open questions for the owner
-1. **How Red One's Claude gets paid for (blocks real use, not development).** The owner is on
-   **Pro**. The Claude API has no free tier, and Pro doesn't include API credits (only Max, Ultra
-   and Team do). Pro *can't* power Red One: Anthropic's terms reserve subscription sign-in for
-   ordinary use of Claude Code and Anthropic's own apps, and say anything built on Claude, including
-   with the Agent SDK, should use an API key. Pro does keep paying for the *building*, since that's
-   these Claude Code cloud sessions. Options for the app:
-   (a) **$5 prepaid API credit, auto-reload off** (recommended): calls simply stop when it's used
-       up; at Haiku 5.5 prices that's thousands of turns.
-   (b) **Stub mode now, decide later:** M1 is fully buildable and testable without a key; you can
-       click through the whole flow with scripted replies.
-   (c) **Gemini free tier as a temporary lead** for non-sensitive topics only, swapped for Claude
-       later. This pulls the Gemini adapter forward from M2 (+1 small story). Conflicts with
-       "sensitive stays with Claude" until switched, so the app would refuse anything marked
-       sensitive.
-2. **Default model:** Haiku 5.5 (cheapest, default above) or Sonnet 5.5 (smarter, ~20× the cost)?
-3. **Approval:** Approve button + `/approve` OK for M1? (Passphrase comes in M7.)
-4. **Data lifetime:** OK that projects live in the codespace and vanish if it's deleted (with
-   `/export` as the backup)? Alternative: commit exports to a private repo, which means research
-   text on GitHub.
+## 8. Owner answers (PR #26)
+1. **Paying for Red One's Claude.** The owner asked to use the Pro plan ("use yourself"). Not
+   possible: the Agent SDK docs state that apps built on Claude must use API-key authentication, not
+   a claude.ai sign-in, and the Agent SDK falls under Anthropic's Commercial Terms, while Pro is a
+   consumer plan. Using Pro would put the account that runs this whole dev workflow at risk. So
+   **M1 is built and tested in stub mode**; real Claude replies switch on the moment an
+   `ANTHROPIC_API_KEY` Codespaces secret exists ($5 prepaid, auto-reload off, recommended; or a Max
+   plan's included monthly API credits). Nothing in M1 development is blocked.
+2. **Model:** Haiku 5.5 by default, escalating to heavier models by task complexity (§4.2).
+3. **Approval:** Approve button + `/approve` for M1. Yes.
+4. **Data:** lives in the codespace with `/export` as the backup. Yes.
 
 ## 9. Decisions proposed in this doc
 FastAPI + plain JS; deterministic state machine with tool-call replies; owner-only approval;
 stub mode when no key; `sensitivity` field from day one; SQLite in the codespace; Haiku default with
-a $5 monthly cap; private port forwarding as M1's access control. Recorded in `decisions.md` on
-approval.
+code-checked escalation (Sonnet automatic, Opus with owner OK) under a $5 monthly cap; private port
+forwarding as M1's access control. Recorded in `decisions.md`.
 
 ## 10. References
 - Anthropic tool use (structured replies): https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview
 - Claude API pricing: https://platform.claude.com/docs/en/about-claude/pricing
 - Monthly API credits for Max/Ultra/Team: https://support.claude.com/en/articles/17154008-monthly-api-credits-for-max-ultra-and-team-plans
+- Agent SDK overview (authentication note): https://code.claude.com/docs/en/agent-sdk/overview
 - Claude Code legal and compliance (authentication and credential use): https://code.claude.com/docs/en/legal-and-compliance
 - Codespaces billing and included usage: https://docs.github.com/billing/managing-billing-for-github-codespaces/about-billing-for-github-codespaces
 - Codespaces port forwarding: https://docs.github.com/en/codespaces/developing-in-a-codespace/forwarding-ports-in-your-codespace

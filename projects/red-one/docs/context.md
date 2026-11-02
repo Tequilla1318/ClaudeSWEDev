@@ -1,6 +1,6 @@
 # Context — red-one ("Project Red One")
 
-Feedback last read: 2026-11-02T01:13Z (PR #24 answers applied in #25; #25 merged, owner confirmed "LocalHost on Codespaces" and will delete the old branches)
+Feedback last read: 2026-11-02T01:20Z (PR #26 approved and merged; owner answers in its comment, applied here)
 
 ## Branch model
 **Side project: lives on `project/red-one`; never merged to `main`** (owner, 2026-11-01).
@@ -10,7 +10,8 @@ The project was first named `voice-agent-room` (PR #24). The owner is deleting t
 `project/voice-agent-room` and `docs/voice-agent-room-context`. Don't use them.
 
 ## Current state
-- **Design stage. No code.** M1 design doc in review ([`design.md`](design.md)). Requirements come from the kickoff chat with Claude (below) and the
+- **M1 design approved** ([`design.md`](design.md)). Building M1 in stub mode; story issues
+  created (see Next). No code merged yet. Requirements come from the kickoff chat with Claude (below) and the
   owner's ChatGPT conversation ([`chatgpt-kickoff-notes.md`](chatgpt-kickoff-notes.md)).
   Milestones: [`roadmap.md`](roadmap.md). Next: the M1 design doc (`design.md`).
 - Owner's instruction: **start with the smallest possible thing and expand later; avoid feature creep.**
@@ -75,7 +76,8 @@ owner gets a report of what was found. **Security is the top priority. No spendi
   bill if auto-reload is off). The owner is on **Pro**: no included API credits (only Max, Ultra,
   Team), and subscription sign-in can't power a custom app (Anthropic's terms: apps, including Agent
   SDK ones, use API keys). Pro still covers the Claude Code sessions that build Red One.
-  **Open question for the owner** (design.md §8.1): $5 prepaid / stub mode / Gemini as temporary lead.
+  Decided: build in stub mode; real replies start when the owner adds an `ANTHROPIC_API_KEY`
+  Codespaces secret (design.md §8.1). The owner asked to use Pro; explained why that's not allowed.
 
 ## Long-term vision
 A large multi-model "engineering team" room, each member with its own voice and role, speaking up
@@ -95,5 +97,6 @@ when needed then returning to work, with Claude moderating (see roadmap.md). Tod
   main account (or an org it owns), so the main account is never connected to Claude.
 
 ## Next
-1. Owner reviews and merges the M1 design-doc PR (#26) and answers its §8 questions.
-2. After approval: create GitHub issues for the M1 stories, then story 1 (scaffold + Codespaces).
+1. M1 epic #33; stories #27–#32, worked in order (design.md §7), one PR each.
+2. Story 1 (#27): scaffold + Codespaces devcontainer + security CI job.
+3. Owner, whenever ready: add `ANTHROPIC_API_KEY` as a Codespaces secret to turn off stub mode.
