@@ -108,3 +108,12 @@ Entries marked "(proposed)" are Claude's suggestions awaiting the owner's approv
   sensitive delegations to non-Claude members — a prompt alone can be ignored or injected.
 - 2026-11-02 — Deleted two cancelled entries (learning-first, local models) at the owner's request,
   an exception to append-only.
+- 2026-11-02 — M1 design approved (PR #26): FastAPI + plain JS, deterministic state machine with
+  tool-call replies, owner-only approval (button + `/approve`), stub mode without a key, SQLite in the
+  codespace with `/export` backup, private port forwarding as access control — owner approval.
+- 2026-11-02 — Claude defaults to Haiku 5.5 and escalates by task complexity; code enforces the
+  allowed list and budget, Sonnet automatic, Opus with owner OK, one step at a time — owner answer
+  (escalation mechanics proposed by Claude).
+- 2026-11-02 — Red One's Claude uses an API key, not the owner's Pro sign-in — Agent SDK docs require
+  API-key auth for apps built on Claude; Pro sign-in would risk the account — rejected: powering the
+  app with the Pro subscription (owner's request). M1 develops in stub mode until a key exists.
