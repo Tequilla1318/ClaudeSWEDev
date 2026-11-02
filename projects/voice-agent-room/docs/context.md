@@ -1,6 +1,6 @@
 # Context — voice-agent-room ("Project Red One")
 
-Feedback last read: 2026-11-01 (no comments on PR #24 yet)
+Feedback last read: 2026-11-01 (no comments on PR #24 yet; owner corrections given in chat 2026-11-01)
 
 ## Branch model
 **Side project: lives on `project/voice-agent-room`; never merged to `main`** (owner, 2026-11-01).
@@ -14,66 +14,75 @@ changes (CI, CLAUDE.md), merge `origin/main` into the project branch via a `chor
 - Owner's instruction: **start with the smallest possible thing and expand later; avoid feature creep.**
 
 ## The idea in one paragraph
-A voice-activated, **human-in-the-loop** AI team. The owner runs one command in Terminal to arm it,
-then says "Red One, boot up". A Chrome window opens on a hosted chat room. The owner talks to one
-primary AI, which acts like a project manager: it asks clarifying questions as if the owner were a
-client, proposes a plan, waits for approval, then hands work to specialist agents on other models
-(Claude, GPT, Gemini, free tiers), chosen per task. Agents report to the primary AI; an independent
-supervisor LLM watches for contradictions and drift. The owner gets constant updates, can ask
-"why?" or redirect at any time, and ends with a report of findings and recommendations. All real
-work happens in the cloud and on GitHub. Reachable from the phone too.
+A voice-activated, **human-in-the-loop** AI team for whatever the owner is curious about:
+software engineering, research ideas, simulations (mostly things that can be coded and checked).
+The owner runs one command in Terminal to arm it, then says the wake phrase. A Chrome window opens
+on a hosted chat room. The owner talks to **Claude**, the main AI and only point of contact. Claude
+clarifies like a contractor with a client, proposes a plan, waits for approval, then does work
+itself and/or hands pieces to **Gemini** (research, data, code). Claude and Gemini discuss, then
+code, with **Claude supervising Gemini's work**. Claude updates the owner when something important
+happens and checks on progress at regular intervals. The owner can interrupt, ask "why?", or ask
+Claude to **teach** them a concept at any time. All work happens in the cloud and on GitHub; the
+owner gets a report of what was found. **Security is the top priority.**
 
 ## Requirements stated by the owner
 1. **Manually armed wake phrase.** One Terminal command arms listening (not an always-on service);
-   the owner can start and stop it on demand. Phrases so far: "Red One, boot up" / "Red One, shut
-   down" (latest), earlier "Claude boot up". In the first chat, utterances also had to start with
-   "hey gang" to reach the agents; whether that prefix stays is open.
-2. **Nothing modified or installed on the Mac; personal files never read.** Only the arming command
-   and mic access are acceptable. The chat room runs elsewhere.
-3. **Human in the loop, not autonomous.** Clarify first, plan, get approval, report continuously,
-   pause and ask when blocked, owner can interrupt and question any step.
-4. **Primary AI as single point of contact**; specialist agents report to it; the owner can inspect
-   any agent's evidence on request.
-5. **Model routing by task**, background tasks on different models, **independent supervisor LLM**.
-6. **LLMs as the brain** (speech-to-text is still needed as the "ears"; interpretation to confirm).
-7. **Chrome, not Safari.**
-8. **Build our own room** (OpenBot rejected).
-9. **Phone access:** use the room and/or trigger the laptop to open it.
-10. **Free LLMs** set up on the AI-only Google account should be able to join.
-11. **Work happens on GitHub**; final output is data on what happened and how to improve.
+   the owner can start and stop it on demand. **Phrase not decided** (candidates: "Red One, boot
+   up", "hey Claude"; earlier "Claude boot up" + "hey gang" prefix).
+2. **Cybersecurity and web-app security are the highest concern.** No data leaks; nothing modified
+   or installed on the Mac; personal files never read. Only the arming command and mic access.
+3. **Human in the loop, not autonomous.** Clarify first, plan, get approval, pause and ask when
+   blocked; the owner can interrupt and question any step.
+4. **Claude is the main AI and single point of contact.** It may do work itself or delegate.
+5. **No separate supervisor model.** Claude checks on workers at regular intervals and supervises
+   Gemini's coding. (Corrects ChatGPT's "independent supervisor LLM".)
+6. **Models: Claude + Gemini** (a free Gemini Flash-class model). Others (e.g. Grok) only if free and
+   useful; expected to stay Claude + Gemini.
+7. **Updates when something important happens**, not a constant stream.
+8. **Teaching mode:** the owner can ask Claude to explain anything; learning is a goal.
+9. **Work types:** random research ideas, software engineering, simulations; mostly codeable and
+   checkable. Work happens on GitHub; the end product is a report of what was found.
+10. **Chrome, not Safari. Build our own room** (OpenBot rejected).
+11. **Phone app (later, not now):** talk to Claude while walking; Claude assigns tasks to Gemini and
+    works on GitHub; Claude summarises each PR and the owner **approves it by voice**, which then
+    approves/merges the PR automatically.
 
 ## Proposed smallest proof of concept (to confirm in the design doc)
-**Text-only consultation loop.** A web chat room where the owner types a request; the primary AI
-(Claude) asks clarifying questions, proposes a plan and waits for "approve"; then one second model
-(e.g. Gemini) answers a delegated sub-question and the primary AI relays it. No voice, no wake word,
-no supervisor, no GitHub execution yet. Testable entirely in a cloud session with pytest and stubbed
-model calls. This matches both Claude's and ChatGPT's advice: conversational system first, agents
-second.
+**Text-only consultation loop.** A web chat room where the owner types a request; Claude asks
+clarifying questions, proposes a plan and waits for "approve"; then Gemini answers one delegated
+sub-question and Claude reviews and relays it. No voice, no wake word, no GitHub execution yet.
+Testable entirely in a cloud session with pytest and stubbed model calls. Conversation first,
+agents second.
 
-Rough order after that: wake word + voice → hosting with login + phone → routing across models →
-background agents with a task registry → supervisor → GitHub execution in cloud sessions.
+Rough order after that: wake word + voice → hosting with login → Claude + Gemini coding on GitHub
+with Claude reviewing → periodic check-ins → phone app with voice PR approval.
 
 ## Key design positions (proposed; see decisions.md)
 - **Wake word in the browser, not a script:** `redone` = one line that opens a Chrome app window
   with a temporary profile; the page listens on-device for the phrase. Chrome's sandbox means the
   page cannot read the owner's files, a stronger guarantee than a Python script (which runs with full
   user permissions). Trade-off: the window must stay open while armed.
+- **Gemini free tier is not private.** Google's terms say free-tier prompts and outputs are used to
+  improve its products, human reviewers may read them, and users should not send sensitive,
+  confidential or personal information; paid-tier prompts are not used for training. Given the
+  security priority: free tier only for non-sensitive research, or pay for Gemini.
+- **Voice PR approval must be enforced by code, not by the LLM.** Claude can summarise and ask, but a
+  deterministic layer performs the merge only after an authenticated, explicit approval from the
+  owner, with a read-back of the PR number and a confirm step. Claude can never "decide" the owner
+  approved. Guards against misheard words and prompt injection from web pages or files the agents read.
 - Other LLMs via **official APIs**, not by automating consumer chat sites.
-- A **deterministic orchestrator** enforces permissions; LLMs (including the supervisor) are never
-  the security boundary. Merges, deploys and scope changes always need the owner.
 - **Project state store** (brief, decisions, tasks, open questions) is the source of truth, not
   chat history.
 
 ## Open questions for the owner
-1. **Hosting:** which host for the room, and is a small monthly cost OK? (Claude Code cloud VMs are
+1. **Wake phrase:** pick one (e.g. "Red One, boot up" or "hey Claude"). Is any prefix needed after
+   waking, or does everything said go to Claude until shutdown?
+2. **Hosting:** which host for the room, and is a small monthly cost OK? (Claude Code cloud VMs are
    for development, not always-on hosting.)
-2. **Wake word in browser vs Terminal script:** OK with an armed Chrome window instead of a script?
-3. **"hey gang" prefix:** keep it, or is "Red One, boot up" enough?
-4. **Voice privacy:** may speech-to-text go to a cloud provider (Google, OpenAI) or must it be
-   on-device?
-5. **Phone:** use the room on the phone, remotely open it on the laptop, or both?
-6. **Models:** Claude primary? Which others (GPT needs a paid OpenAI API key; Gemini has a free tier)?
-7. **Name:** rename project and branch to `red-one`? Cheap now, before anything merges.
+3. **Wake word in browser vs Terminal script:** OK with an armed Chrome window instead of a script?
+4. **Voice privacy:** may speech-to-text go to a cloud provider, or must it stay on-device?
+5. **Gemini free tier vs paid**, given free-tier data may be read by Google reviewers.
+6. **Name:** rename project and branch to `red-one`? Cheap now, before anything merges.
 
 ## Known issues / gotchas
 - Cloud VMs have **no microphone or speaker**; voice is tested with recorded/synthesised audio.

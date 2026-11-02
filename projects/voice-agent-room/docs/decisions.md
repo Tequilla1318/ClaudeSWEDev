@@ -41,3 +41,20 @@ Entries marked "(proposed)" are Claude's suggestions awaiting the owner's approv
   approve → one delegated answer from a second model), superseding the "hey gang" text-room PoC —
   the owner's core value is the human-in-the-loop conversation; build conversation first, agents
   second — rejected: starting with multi-agent or voice.
+- 2026-11-01 — **No separate supervisor model.** Claude is the main AI: it may work itself or
+  delegate, checks on workers at regular intervals, and supervises Gemini's coding. Supersedes the
+  "independent supervisor model" part of the earlier entry — owner correction — rejected: a third
+  model watching the workers.
+- 2026-11-01 — Models are Claude (main) + Gemini (worker); others only if free and useful — owner
+  choice — rejected: GPT as a core model.
+- 2026-11-01 — Cybersecurity / web-app security is the top priority; updates only when something
+  important happens; teaching on request is a core feature — owner requirement.
+- 2026-11-01 — Phone app with voice PR approval is deferred until the laptop version works — owner
+  choice — rejected: building phone access early.
+- 2026-11-01 — (proposed) Voice PR approval is executed by deterministic code after an authenticated,
+  explicit owner confirmation with a read-back; the LLM can request but never grant approval —
+  prevents misheard approvals and prompt-injected merges — rejected: letting Claude merge when it
+  believes the owner agreed.
+- 2026-11-01 — (proposed) Gemini free tier used only for non-sensitive work (Google may use free-tier
+  data and human reviewers may read it); paid tier if anything sensitive is involved — security
+  priority — rejected: sending everything to the free tier.
