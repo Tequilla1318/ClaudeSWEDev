@@ -70,3 +70,10 @@ Entries marked "(proposed)" are Claude's suggestions awaiting the owner's approv
 - 2026-11-01 — (proposed) The passphrase creates a short-lived pending approval bound to PR number +
   target branch; the branch shown is read from GitHub by the gate, and any change of target branch
   voids the approval and needs the phrase again — stops a model from redirecting a merge.
+- 2026-11-01 — Every milestone must be usable on its own and come with owner test steps; versions are
+  kept on GitHub so the owner can roll back to any level — owner requirement.
+- 2026-11-01 — Long-term goal: open-source the package or run it as a server — owner intention —
+  implies bring-your-own-keys and no owner-specific hard-coding.
+- 2026-11-01 — (proposed) Milestones M1–M9 as in roadmap.md, each tagged as a release and gated by a
+  security checklist; GitHub Codespaces as the run environment until hosting is decided (M3) —
+  nothing on the Mac, usable from M1 — rejected: deciding hosting before the first usable version.

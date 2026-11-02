@@ -56,8 +56,8 @@ sub-question and Claude reviews and relays it. No voice, no wake word, no GitHub
 Testable entirely in a cloud session with pytest and stubbed model calls. Conversation first,
 agents second.
 
-Rough order after that: wake word + voice → hosting with login → Claude + Gemini coding on GitHub
-with Claude reviewing → periodic check-ins → phone app with voice PR approval.
+Full milestone plan (M1–M9, each usable on its own, each with owner test steps, CI tests, a
+security gate and a tagged release): see [`roadmap.md`](roadmap.md).
 
 ## Key design positions (proposed; see decisions.md)
 - **Wake word in the browser, not a script:** `redone` = one line that opens a Chrome app window
@@ -97,6 +97,10 @@ with Claude reviewing → periodic check-ins → phone app with voice PR approva
 5. **Gemini free tier vs paid**, given free-tier data may be read by Google reviewers.
 6. **Name:** rename project and branch to `red-one`? Cheap now, before anything merges.
 
+## Long-term goal
+If it works well, the owner will **open-source the package or run it as a server** for others.
+So: self-contained package, bring-your-own-keys, no owner-specific hard-coding, security documented.
+
 ## Known issues / gotchas
 - Cloud VMs have **no microphone or speaker**; voice is tested with recorded/synthesised audio.
   Live-mic behaviour can only be checked by the owner on their Mac.
@@ -114,6 +118,7 @@ with Claude reviewing → periodic check-ins → phone app with voice PR approva
 
 ## Next
 1. Owner answers the open questions (PR #24 comments are fine) and merges PR #24.
-2. Claude opens the design-doc PR (`docs/design.md`) against `project/voice-agent-room`, detailed for
+2. Owner reviews `roadmap.md` (milestone order, Codespaces until hosting is decided).
+3. Claude opens the design-doc PR (`docs/design.md`) against `project/voice-agent-room`, detailed for
    the proof of concept, with later milestones listed but not detailed.
-3. No implementation until the design doc is approved.
+4. No implementation until the design doc is approved.
