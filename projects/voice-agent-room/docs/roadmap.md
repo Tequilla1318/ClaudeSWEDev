@@ -14,6 +14,10 @@ M1 into user stories; later milestones are detailed when they are next.
 - **Security gate per milestone:** no secrets in the repo, secret scanning and dependency audit in
   CI, and the threat model (`docs/security.md`, started in M1) updated with whatever the milestone
   adds. A milestone isn't done until its security checklist passes.
+- **Learning first, not just output.** The owner must always understand what is happening and why;
+  the system must never deskill the owner into rubber-stamping agent work. Every plan step, finding and PR
+  comes with a plain-language "why", key concepts are explained on request (and flagged when new),
+  and nothing important happens that the owner wasn't told about.
 - **Open-source ready from day one:** self-contained package, "bring your own API keys", nothing
   specific to the owner hard-coded, so it can later be published or run as a server.
 
@@ -29,6 +33,7 @@ allowance. (Proposed; alternative is to decide hosting now and skip this.)
 **What you get:** a web chat with Claude that behaves like a contractor: it asks clarifying
 questions, proposes a plan, waits for "approve", then answers. Ask "teach me X" at any time.
 Conversation and decisions saved per project.
+Every plan step states *why* in plain language.
 **Useful because:** a thinking partner that doesn't run off and guess.
 **How you test it:** open a Codespace → run one command → open the forwarded link → give it a vague
 request ("research better battery chemistries") and check it asks questions before answering, refuses
@@ -128,6 +133,12 @@ back to work. Claude stays the moderator: it decides who gets the floor so the r
 into everyone talking at once, and the owner can address any member directly. Enabled by the
 team-member abstraction from M2. Cost note: this needs **API keys (pay-per-use, with spending
 caps)**, not consumer subscriptions like ChatGPT Plus, which generally don't include API access.
+
+**Local models (far future, if the system proves itself):** swap cloud LLMs for models running on
+the owner's own hardware on an isolated network, so the laptop stays free for normal use and nothing
+depends on cloud providers. The team-member config from M2 makes this a provider swap (local
+OpenAI-compatible servers such as Ollama, llama.cpp or vLLM), not a redesign. Hardware, model quality
+and whether the laptop or a separate machine hosts them are open.
 
 ## Not in any milestone yet
 Discord bridge, a progress dashboard beyond the chat, and starting a

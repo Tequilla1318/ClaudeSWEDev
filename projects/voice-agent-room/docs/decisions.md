@@ -90,3 +90,8 @@ Entries marked "(proposed)" are Claude's suggestions awaiting the owner's approv
   voice, spending cap) behind a provider adapter, so new models are additive; Claude moderates who
   speaks, and members may address the owner directly only via Claude's floor control — rejected:
   hard-coding Claude + Gemini.
+- 2026-11-01 — Learning first: the owner must always understand what the agents are doing and why;
+  explanations and "why" for every plan step, finding and PR outrank speed — owner requirement —
+  rejected: maximising autonomous throughput.
+- 2026-11-01 — Far-future option: replace cloud LLMs with local models on an isolated network
+  without tying up the laptop — owner intention; kept possible via the team-member/provider config.
