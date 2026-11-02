@@ -97,6 +97,7 @@ when needed then returning to work, with Claude moderating (see roadmap.md). Tod
   main account (or an org it owns), so the main account is never connected to Claude.
 
 ## Next
-1. Owner decides on the Claude-Code-native proposal (and where Red One sessions live).
+1. Owner chose the Claude-Code-native direction (2026-11-02). Still open: where Red One sessions live
+   (separate repo vs branch) and the Gemini network secret.
 2. If yes: close #35 and #27–#33, re-cut roadmap and stories around the proposal.
    If no: continue M1 as designed in stub mode, starting with #35.

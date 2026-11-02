@@ -123,3 +123,7 @@ Entries marked "(proposed)" are Claude's suggestions awaiting the owner's approv
   extending Claude Code is ordinary use, while a custom app needs API keys — rejected (if approved):
   the custom FastAPI app calling the Claude API. Trade-offs: shared Pro limits, softer approval gate,
   no custom voice UI. See proposal-claude-code-native.md.
+- 2026-11-02 — **Owner chose the Claude-Code-native direction** (chat, 20:38): the live conversation
+  uses Claude Code's own interface (claude.ai/code, Claude app) on the Pro plan; wake page and Red One
+  side pages (status, reports, read-aloud) remain ours. Owner "not exceptionally happy" about losing a
+  custom chat interface; switching the conversation to our own UI later with an API key stays open.

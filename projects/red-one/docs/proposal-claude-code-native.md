@@ -1,6 +1,6 @@
 # Proposal — run Red One *inside* Claude Code, on the owner's Pro plan
 
-Status: **proposal for owner review** (2026-11-02). If approved, it replaces the M1 architecture in
+Status: **chosen by the owner** (2026-11-02, chat). Open questions below still need answers. If approved, it replaces the M1 architecture in
 `design.md` (custom FastAPI app calling the Claude API). Not implemented.
 
 ## Why the current design can't use Pro
