@@ -10,7 +10,7 @@ The project was first named `voice-agent-room` (PR #24). The old branch `project
 still exists because the session can't delete branches; the owner can delete it. Don't use it.
 
 ## Current state
-- **Design stage. No code.** Requirements come from the kickoff chat with Claude (below) and the
+- **Design stage. No code.** M1 design doc in review ([`design.md`](design.md)). Requirements come from the kickoff chat with Claude (below) and the
   owner's ChatGPT conversation ([`chatgpt-kickoff-notes.md`](chatgpt-kickoff-notes.md)).
   Milestones: [`roadmap.md`](roadmap.md). Next: the M1 design doc (`design.md`).
 - Owner's instruction: **start with the smallest possible thing and expand later; avoid feature creep.**
@@ -72,8 +72,10 @@ owner gets a report of what was found. **Security is the top priority. No spendi
   usage is blocked when the allowance runs out, so it can't charge.
 - **Gemini API:** free tier (rate-limited; Google may use the data and human reviewers may read it).
 - **Claude API: no free tier.** It's prepaid credits; when credits run out, calls stop (no surprise
-  bill if auto-reload is off). Exception: Max, Ultra and Team plans include monthly API credits that
-  can be linked to a Console organization. **Open question for the owner** (see design.md).
+  bill if auto-reload is off). The owner is on **Pro**: no included API credits (only Max, Ultra,
+  Team), and subscription sign-in can't power a custom app (Anthropic's terms: apps, including Agent
+  SDK ones, use API keys). Pro still covers the Claude Code sessions that build Red One.
+  **Open question for the owner** (design.md §8.1): $5 prepaid / stub mode / Gemini as temporary lead.
 
 ## Long-term vision
 A large multi-model "engineering team" room, each member with its own voice and role, speaking up
@@ -93,6 +95,6 @@ when needed then returning to work, with Claude moderating (see roadmap.md). Tod
   main account (or an org it owns), so the main account is never connected to Claude.
 
 ## Next
-1. Owner merges this PR (rename + answers).
+1. Owner merges PR #25 (rename + answers), then the M1 design-doc PR.
 2. Owner reviews the M1 design-doc PR and answers its open questions (Claude API credits).
 3. After approval: create GitHub issues for the M1 stories, then story 1 (scaffold + Codespaces).
