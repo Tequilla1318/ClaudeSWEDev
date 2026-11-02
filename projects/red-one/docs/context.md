@@ -1,6 +1,6 @@
 # Context — red-one ("Project Red One")
 
-Feedback last read: 2026-11-02T01:20Z (PR #26 approved and merged; owner answers in its comment, applied here)
+Feedback last read: 2026-11-02T01:27Z (#34 merged: escalation rules approved; owner asked to find a way to use the Pro plan → proposal PR)
 
 ## Branch model
 **Side project: lives on `project/red-one`; never merged to `main`** (owner, 2026-11-01).
@@ -97,6 +97,6 @@ when needed then returning to work, with Claude moderating (see roadmap.md). Tod
   main account (or an org it owns), so the main account is never connected to Claude.
 
 ## Next
-1. M1 epic #33; stories #27–#32, worked in order (design.md §7), one PR each.
-2. Story 1 (#27): scaffold + Codespaces devcontainer + security CI job.
-3. Owner, whenever ready: add `ANTHROPIC_API_KEY` as a Codespaces secret to turn off stub mode.
+1. Owner decides on the Claude-Code-native proposal (and where Red One sessions live).
+2. If yes: close #35 and #27–#33, re-cut roadmap and stories around the proposal.
+   If no: continue M1 as designed in stub mode, starting with #35.

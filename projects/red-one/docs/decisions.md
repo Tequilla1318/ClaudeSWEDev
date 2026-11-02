@@ -117,3 +117,9 @@ Entries marked "(proposed)" are Claude's suggestions awaiting the owner's approv
 - 2026-11-02 — Red One's Claude uses an API key, not the owner's Pro sign-in — Agent SDK docs require
   API-key auth for apps built on Claude; Pro sign-in would risk the account — rejected: powering the
   app with the Pro subscription (owner's request). M1 develops in stub mode until a key exists.
+- 2026-11-02 — (proposed) Run Red One inside Claude Code cloud sessions on the Pro plan: the consult
+  workflow as a skill + slash commands + approval hooks, escalation as Haiku/Sonnet/Opus subagents,
+  Gemini via a repo MCP server with its key as a network secret — the owner wants to use Pro, and
+  extending Claude Code is ordinary use, while a custom app needs API keys — rejected (if approved):
+  the custom FastAPI app calling the Claude API. Trade-offs: shared Pro limits, softer approval gate,
+  no custom voice UI. See proposal-claude-code-native.md.
