@@ -1,13 +1,13 @@
 # Context — red-one ("Project Red One")
 
-Feedback last read: 2026-11-02T01:06Z (owner's answers on PR #24, applied in this PR)
+Feedback last read: 2026-11-02T01:13Z (PR #24 answers applied in #25; #25 merged, owner confirmed "LocalHost on Codespaces" and will delete the old branches)
 
 ## Branch model
 **Side project: lives on `project/red-one`; never merged to `main`** (owner, 2026-11-01).
 Cut story branches from `project/red-one` and open PRs against it. To pick up repo-wide changes
 (CI, CLAUDE.md), merge `origin/main` into the project branch via a `chore/` PR.
-The project was first named `voice-agent-room` (PR #24). The old branch `project/voice-agent-room`
-still exists because the session can't delete branches; the owner can delete it. Don't use it.
+The project was first named `voice-agent-room` (PR #24). The owner is deleting the old branches
+`project/voice-agent-room` and `docs/voice-agent-room-context`. Don't use them.
 
 ## Current state
 - **Design stage. No code.** M1 design doc in review ([`design.md`](design.md)). Requirements come from the kickoff chat with Claude (below) and the
@@ -95,6 +95,5 @@ when needed then returning to work, with Claude moderating (see roadmap.md). Tod
   main account (or an org it owns), so the main account is never connected to Claude.
 
 ## Next
-1. Owner merges PR #25 (rename + answers), then the M1 design-doc PR.
-2. Owner reviews the M1 design-doc PR and answers its open questions (Claude API credits).
-3. After approval: create GitHub issues for the M1 stories, then story 1 (scaffold + Codespaces).
+1. Owner reviews and merges the M1 design-doc PR (#26) and answers its §8 questions.
+2. After approval: create GitHub issues for the M1 stories, then story 1 (scaffold + Codespaces).
