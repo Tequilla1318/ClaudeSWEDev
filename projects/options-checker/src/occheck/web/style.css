@@ -139,3 +139,15 @@ footer.site { color: var(--ink-soft); font-size: 0.9rem; padding: 2rem 0 3rem; b
   .ticket { padding: 1.5rem 1rem; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* Fan chart for the risk calculator */
+.fan { margin: 1.5rem 0 0; }
+.fan svg { width: 100%; height: auto; display: block; background: var(--sheet); border-radius: 6px; }
+.fan figcaption { color: var(--ink-soft); font-size: 0.9rem; margin-top: 0.5rem; }
+.fan .grid { stroke: var(--rule); stroke-width: 1; }
+.fan .axis-start { stroke: var(--ink-soft); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.fan .tick { fill: var(--ink-soft); font: 12px var(--display); }
+.fan .band-outer { fill: var(--info); opacity: 0.18; }
+.fan .band-inner { fill: var(--info); opacity: 0.38; }
+.fan .median { fill: none; stroke: var(--ink); stroke-width: 2; }
+.row .field input { width: 11rem; }

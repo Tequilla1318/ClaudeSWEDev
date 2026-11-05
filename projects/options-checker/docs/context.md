@@ -10,12 +10,13 @@ Feedback last read: 2026-11-05
 - S3 (#49, PR #64) in review: `occheck.trades.Trade` model + `occheck.brokers.ibkr_flex` parser.
 - S4 (#50, PR #65) in review: `occheck.roundtrips` FIFO matcher; `occheck.audit` cost summary + turnover.
 - S5 (#51, PR #66) in review: bias metrics, report card, `occheck audit <csv>`.
-- **S6 (#53) in review:** static site (`src/occheck/web/`), `occheck serve` / `build-site`,
+- S6 (#53, PR #67) in review: static site (`src/occheck/web/`), `occheck serve` / `build-site`,
   Pages workflow `.github/workflows/options-checker-pages.yml`, browser smoke test `webtest/`.
+- **S7 (#54) in review:** `occheck.risk` Monte Carlo + Kelly; `risk.html` with a log-scale fan chart.
 - Story PRs are **stacked** (each branch cut from the previous); merge in order, starting with #45.
 
 ## What's next
-- S7 (#54): risk-of-ruin and position-size calculator page.
+- S8 (#56): Cboe/FRED data loaders and validators (backtester milestone).
 
 ## Key facts for future sessions
 - Goal: "shovels" — tools that expose where traders lose money (costs, IV overpayment, timing,
