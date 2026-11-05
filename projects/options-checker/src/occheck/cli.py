@@ -23,6 +23,11 @@ def build_parser() -> argparse.ArgumentParser:
     audit.add_argument("csv", type=Path, help="path to the Flex Query CSV export")
     audit.add_argument("--account-value", type=float, default=None, help="account size, $")
     audit.add_argument("--json", action="store_true", help="print the report as JSON")
+    serve = sub.add_parser("serve", help="run the web app on http://127.0.0.1")
+    serve.add_argument("--port", type=int, default=8765)
+    serve.add_argument("--no-browser", action="store_true", help="don't open a browser tab")
+    build = sub.add_parser("build-site", help="write the static web app to a folder")
+    build.add_argument("out", type=Path)
     return parser
 
 
@@ -43,6 +48,14 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(f"occheck: {exc}", file=sys.stderr)
             return 2
         print(json.dumps(report, indent=2, default=str) if args.json else render_text(report))
+    elif args.command == "serve":  # pragma: no cover - blocking server
+        from occheck.site import serve
+
+        serve(port=args.port, open_browser=not args.no_browser)
+    elif args.command == "build-site":
+        from occheck.site import build_site
+
+        print(f"occheck: wrote {build_site(args.out)}")
     return 0
 
 

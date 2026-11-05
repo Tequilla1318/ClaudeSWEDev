@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trade-log report card</title>
+<meta name="description" content="Upload an IBKR Flex trades CSV and see your costs, turnover and costly habits. Your file stays in your browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="site"><a class="home" href="./">Options Checker</a></header>
+  <main>
+    <h1>Trade-log report card</h1>
+    <p class="lede">What your trades cost you, and which habits that research links to losses show up in them.</p>
+
+    <form class="ticket" id="form">
+      <label class="drop" for="file">Drop your IBKR trades file here, or choose it</label>
+      <input type="file" id="file" accept=".csv,text/csv">
+      <p class="privacy">Your file is read by this page only. It is never uploaded.</p>
+      <div class="row">
+        <label class="field">Account value in $ (optional)
+          <input type="number" id="account" min="0" step="100" inputmode="decimal" placeholder="50000">
+        </label>
+        <button type="submit" id="run">Build report card</button>
+        <button type="button" class="quiet" id="sample">Try a sample file</button>
+      </div>
+      <div class="status-line" id="status" role="status" aria-live="polite"></div>
+    </form>
+
+    <details>
+      <summary>How to export your trades from Interactive Brokers</summary>
+      <ol>
+        <li>In the IBKR Portal, open Performance &amp; Reports, then Flex Queries.</li>
+        <li>Create an Activity Flex Query. Add the Trades section with at least: Asset Class, Symbol,
+          Underlying Symbol, Multiplier, Strike, Expiry, Put/Call, Trade ID, Date/Time, Quantity, Trade Price,
+          IB Commission, Open/Close Indicator, Notes/Codes.</li>
+        <li>Set the format to CSV, run it for the period you want, and download the file.</li>
+      </ol>
+    </details>
+
+    <section id="report" hidden>
+      <p class="summary" id="summary"></p>
+      <ol class="ledger" id="ledger"></ol>
+      <div class="notes" id="notes"></div>
+      <p class="notes" id="disclaimer"></p>
+    </section>
+  </main>
+  <footer class="site">Educational tool, not financial advice. Bid-ask spreads, dividends and interest
+    are not in the trades file, so they aren't counted here.</footer>
+</div>
+<script type="module" src="audit.js"></script>
+</body>
+</html>

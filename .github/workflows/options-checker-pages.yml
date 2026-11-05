@@ -1,0 +1,70 @@
+name: options-checker site
+
+# Builds the options-checker static site, smoke-tests it in headless Chrome, and on
+# main publishes it to GitHub Pages at /<repo>/options-checker/.
+# One-time setup by the repo owner: Settings → Pages → Source: "GitHub Actions".
+
+on:
+  pull_request:
+    paths:
+      - "projects/options-checker/**"
+      - ".github/workflows/options-checker-pages.yml"
+  push:
+    branches: [main]
+    paths:
+      - "projects/options-checker/**"
+      - ".github/workflows/options-checker-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: options-checker-pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: projects/options-checker
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Build site
+        run: |
+          pip install .
+          occheck build-site "$GITHUB_WORKSPACE/_site/options-checker"
+          printf '<!doctype html><meta http-equiv="refresh" content="0; url=options-checker/"><a href="options-checker/">Options Checker</a>\n' \
+            > "$GITHUB_WORKSPACE/_site/index.html"
+      - name: Browser smoke test
+        working-directory: projects/options-checker/webtest
+        run: |
+          npm ci
+          (cd "$GITHUB_WORKSPACE/_site/options-checker" && python -m http.server 8765 --bind 127.0.0.1 &)
+          sleep 2
+          SITE_URL=http://127.0.0.1:8765/ CHROME="$(which google-chrome)" node smoke.mjs
+      - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        with:
+          path: _site
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}options-checker/
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -168,7 +168,8 @@ def build_report(
             else "flag"
             if ratio > th.disposition_ratio_flag
             else "ok",
-            "n/a"
+            f"Needs at least {th.min_samples} winning and {th.min_samples} losing trades "
+            f"(this file has {disp['n_winners']} and {disp['n_losers']})"
             if not enough or ratio is None
             else f"Median hold: winners {disp['median_days_winners']:.1f} days, losers "
             f"{disp['median_days_losers']:.1f} days ({ratio:.2f}x)",

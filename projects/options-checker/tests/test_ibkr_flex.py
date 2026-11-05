@@ -17,7 +17,7 @@ def test_parses_supported_rows_and_skips_the_rest(basic):
     assert len(basic.trades) == 11
     assert basic.skipped["asset class FUT"] == 1
     assert basic.skipped["asset class CASH"] == 1
-    assert basic.skipped["LevelOfDetail != EXECUTION"] == 1
+    assert basic.skipped["summary rows (LevelOfDetail not EXECUTION)"] == 1
     assert any("FUT" in w for w in basic.warnings)
 
 
@@ -84,4 +84,4 @@ def test_multiple_currencies_warned():
 def test_falls_back_to_order_level():
     text = HEADER + ",LevelOfDetail\nSTK,A,20250101,1,1,0,ORDER\nSTK,A,20250101,1,1,0,SUMMARY\n"
     res = parse_flex_csv(text)
-    assert len(res.trades) == 1 and res.skipped["LevelOfDetail != ORDER"] == 1
+    assert len(res.trades) == 1 and res.skipped["summary rows (LevelOfDetail not ORDER)"] == 1

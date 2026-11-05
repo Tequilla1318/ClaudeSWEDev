@@ -9,12 +9,13 @@ Feedback last read: 2026-11-05
 - S2 (#47, PR #63) in review: `occheck.pricing` — Black-Scholes-Merton price, Greeks, implied vol.
 - S3 (#49, PR #64) in review: `occheck.trades.Trade` model + `occheck.brokers.ibkr_flex` parser.
 - S4 (#50, PR #65) in review: `occheck.roundtrips` FIFO matcher; `occheck.audit` cost summary + turnover.
-- **S5 (#51) in review:** bias metrics in `occheck.audit`, report card in `occheck.report`,
-  `occheck audit <csv> [--account-value N] [--json]`.
+- S5 (#51, PR #66) in review: bias metrics, report card, `occheck audit <csv>`.
+- **S6 (#53) in review:** static site (`src/occheck/web/`), `occheck serve` / `build-site`,
+  Pages workflow `.github/workflows/options-checker-pages.yml`, browser smoke test `webtest/`.
 - Story PRs are **stacked** (each branch cut from the previous); merge in order, starting with #45.
 
 ## What's next
-- S6 (#53): static site + Pyodide auditor page, Pages workflow, `occheck serve`.
+- S7 (#54): risk-of-ruin and position-size calculator page.
 
 ## Key facts for future sessions
 - Goal: "shovels" — tools that expose where traders lose money (costs, IV overpayment, timing,
@@ -29,6 +30,11 @@ Feedback last read: 2026-11-05
   The repo's Pages API path is blocked from cloud sessions; owner must enable Pages (Source: Actions).
 
 ## Known issues / gotchas
+- Site loads Pyodide v314.0.7 (Python 3.14) + numpy from jsdelivr, then writes occheck's .py files
+  (listed in `py/manifest.json`) into Pyodide's FS — no wheel build needed.
+- Headless Chrome in sessions needs `--proxy-server=$HTTPS_PROXY --ignore-certificate-errors`
+  (smoke.mjs adds these only when HTTPS_PROXY is set). `--virtual-time-budget` doesn't wait for
+  network; use puppeteer (`webtest/`).
 - Turnover needs account value from the user (Flex Trades has no equity); annualized over the
   file span with a 30-day minimum.
 - Flex fixtures are synthetic (no real export yet). Option symbols follow IBKR's OCC-style
