@@ -1,0 +1,46 @@
+name: red-one security
+
+# Lives only on the project/red-one branch. Runs on PRs into it and on pushes to it.
+on:
+  pull_request:
+    branches: [project/red-one]
+  push:
+    branches: [project/red-one]
+
+permissions:
+  contents: read
+
+jobs:
+  secrets:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # Free for personal accounts; organisations would need a GITLEAKS_LICENSE secret.
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  dependencies:
+    name: Dependency audit (pip-audit)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: projects/red-one
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install project and pip-audit
+        run: |
+          python -m venv .venv
+          . .venv/bin/activate
+          pip install --upgrade pip
+          pip install -e ".[dev]" pip-audit
+      - name: Audit installed packages for known vulnerabilities
+        run: |
+          . .venv/bin/activate
+          pip-audit --skip-editable
