@@ -1,0 +1,351 @@
+<title>Merger Arb Desk</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: a deal ticket on the left (inputs), a read-out on the right (results); stacks on phones. */
+:root {
+  --bg: #f3f4f1;
+  --panel: #ffffff;
+  --ink: #18201d;
+  --muted: #5c6763;
+  --line: #d9ddd8;
+  --accent: #1f6b5c;
+  --accent-soft: #dcebe6;
+  --close: #1f7a4d;
+  --break: #b0412f;
+  --warn: #9a6b12;
+  --warn-soft: #f6ecd6;
+  --display: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121715; --panel: #1a211e; --ink: #e5ebe8; --muted: #95a29d; --line: #2d3733;
+    --accent: #5fbca6; --accent-soft: #1f332d; --close: #5ec58f; --break: #ec7a66;
+    --warn: #e0b45a; --warn-soft: #332a17; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121715; --panel: #1a211e; --ink: #e5ebe8; --muted: #95a29d; --line: #2d3733;
+  --accent: #5fbca6; --accent-soft: #1f332d; --close: #5ec58f; --break: #ec7a66;
+  --warn: #e0b45a; --warn-soft: #332a17; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1120px; margin: 0 auto; padding-block: 24px 48px; display: grid; gap: 20px; }
+header h1 { font-family: var(--display); font-weight: 700; font-size: 1.9rem; line-height: 1.1; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+header p { margin: 6px 0 0; color: var(--muted); max-width: 62ch; }
+.eyebrow { font-family: var(--display); text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.75rem; font-weight: 600; color: var(--muted); }
+.presets { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.chip { font: 500 0.85rem var(--body); border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+.chip:hover { border-color: var(--accent); }
+.chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
+.chip:focus-visible, input:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.grid { display: grid; gap: 20px; grid-template-columns: 1fr; align-items: start; }
+@media (min-width: 900px) { .grid { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); } }
+.ticket { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 16px; }
+.ticket h2, .readout h2 { font-family: var(--display); font-size: 1.05rem; font-weight: 600; margin: 0; }
+fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
+legend { padding: 0; margin-bottom: 8px; }
+.field { display: grid; gap: 4px; min-width: 0; align-content: start; }
+.field label { font-size: 0.8rem; color: var(--muted); }
+.field input { font: 500 1rem var(--mono); font-variant-numeric: tabular-nums; width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); }
+.field .hint { font-size: 0.72rem; color: var(--muted); }
+details { border-top: 1px solid var(--line); padding-top: 12px; }
+summary { cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+details fieldset { margin-top: 12px; }
+.readout { display: grid; gap: 16px; min-width: 0; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 12px; min-width: 0; }
+.kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 520px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .kpis .k:last-child { grid-column: span 2; } }
+.k { display: grid; gap: 2px; }
+.k .v { font: 600 1.45rem var(--mono); font-variant-numeric: tabular-nums; line-height: 1.2; }
+.k .s { font-size: 0.78rem; color: var(--muted); }
+.v.pos { color: var(--close); } .v.neg { color: var(--break); }
+.odds { display: grid; gap: 8px; }
+.track { position: relative; height: 34px; border-radius: 6px; background: linear-gradient(90deg, var(--break) 0%, var(--warn) 50%, var(--close) 100%); opacity: 0.9; }
+.mark { position: absolute; top: -4px; bottom: -4px; width: 3px; background: var(--ink); border-radius: 2px; transform: translateX(-50%); }
+.mark.be { background: var(--panel); border: 1px solid var(--ink); width: 5px; }
+.marklegend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 0.82rem; color: var(--muted); }
+.marklegend b { font-family: var(--mono); color: var(--ink); font-weight: 600; }
+.swatch { display: inline-block; width: 10px; height: 10px; vertical-align: -1px; margin-right: 6px; border-radius: 2px; background: var(--ink); }
+.swatch.be { background: var(--panel); border: 1px solid var(--ink); }
+.slider { display: grid; gap: 6px; }
+.slider label { font-size: 0.9rem; }
+.slider input[type=range] { width: 100%; accent-color: var(--accent); }
+.outcomes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.outcome { border-radius: 8px; padding: 10px 12px; border: 1px solid var(--line); }
+.outcome .t { font-size: 0.78rem; color: var(--muted); }
+.outcome .n { font: 600 1.1rem var(--mono); font-variant-numeric: tabular-nums; }
+.outcome.c .n { color: var(--close); } .outcome.b .n { color: var(--break); }
+.ev { font-size: 0.95rem; }
+.ev b { font-family: var(--mono); }
+.chart svg { width: 100%; height: auto; display: block; }
+.chart text { font: 11px var(--mono); fill: var(--muted); }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th, td { text-align: right; padding: 7px 8px; border-bottom: 1px solid var(--line); font-size: 0.9rem; }
+th:first-child, td:first-child { text-align: left; }
+th { font-family: var(--display); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+td { font-family: var(--mono); }
+.tablewrap { overflow-x: auto; }
+.notes { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.notes li { background: var(--warn-soft); border-left: 3px solid var(--warn); padding: 8px 12px; border-radius: 4px; font-size: 0.88rem; }
+.error { color: var(--break); font-weight: 600; }
+.sizer { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.sizeout { font-size: 0.92rem; }
+.sizeout b { font-family: var(--mono); }
+.hedge { font-size: 0.92rem; }
+.hedge b { font-family: var(--mono); }
+footer { color: var(--muted); font-size: 0.8rem; max-width: 75ch; display: grid; gap: 6px; }
+footer p { margin: 0; }
+.example-tag { font-size: 0.75rem; color: var(--warn); font-weight: 600; }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Merger arbitrage</div>
+    <h1>Merger Arb Desk</h1>
+    <p>Enter a pending deal to see the spread, what odds the market is pricing in, what you'd earn per year if it closes on time, and what you'd lose if it breaks.</p>
+  </header>
+
+  <div class="presets" role="group" aria-label="Example deals">
+    <span class="eyebrow">Examples</span>
+    <button class="chip" type="button" data-preset="video" aria-pressed="true">$15 cash offer (from the video)</button>
+    <button class="chip" type="button" data-preset="mixed">Cash + stock deal</button>
+    <button class="chip" type="button" data-preset="risky">Regulatory long shot</button>
+  </div>
+
+  <div class="grid">
+    <form class="ticket" id="ticket" autocomplete="off">
+      <div>
+        <h2>Deal ticket</h2>
+        <div class="example-tag" id="exampleTag">Hypothetical example. Replace with real prices.</div>
+      </div>
+      <fieldset>
+        <legend class="eyebrow">The offer</legend>
+        <div class="field"><label for="cash">Cash per share ($)</label><input id="cash" inputmode="decimal" type="number" step="any" min="0"></div>
+        <div class="field"><label for="ratio">Acquirer shares per share</label><input id="ratio" inputmode="decimal" type="number" step="any" min="0"><span class="hint">0 for all-cash deals</span></div>
+      </fieldset>
+      <fieldset>
+        <legend class="eyebrow">Market prices</legend>
+        <div class="field"><label for="target">Target price ($)</label><input id="target" inputmode="decimal" type="number" step="any" min="0"></div>
+        <div class="field"><label for="acquirer">Acquirer price ($)</label><input id="acquirer" inputmode="decimal" type="number" step="any" min="0"><span class="hint">Only for stock deals</span></div>
+      </fieldset>
+      <fieldset>
+        <legend class="eyebrow">Your assumptions</legend>
+        <div class="field"><label for="fallback">Break price ($)</label><input id="fallback" inputmode="decimal" type="number" step="any" min="0"><span class="hint">Where the target trades if the deal dies. Often near the pre-announcement price.</span></div>
+        <div class="field"><label for="days">Days to close</label><input id="days" inputmode="numeric" type="number" step="1" min="1"><span class="hint">From the merger agreement's expected timeline</span></div>
+      </fieldset>
+      <details id="costs">
+        <summary>Dividends, borrow fee and trading costs</summary>
+        <fieldset>
+          <div class="field"><label for="tdiv">Target dividends before close ($)</label><input id="tdiv" inputmode="decimal" type="number" step="any" min="0"></div>
+          <div class="field"><label for="adiv">Acquirer dividends you'd owe ($/acq. share)</label><input id="adiv" inputmode="decimal" type="number" step="any" min="0"></div>
+          <div class="field"><label for="borrow">Borrow fee on short (% per year)</label><input id="borrow" inputmode="decimal" type="number" step="any" min="0"></div>
+          <div class="field"><label for="costsIn">Round-trip costs ($/share)</label><input id="costsIn" inputmode="decimal" type="number" step="any" min="0"></div>
+        </fieldset>
+      </details>
+    </form>
+
+    <div class="readout" aria-live="polite">
+      <section class="panel">
+        <h2>The spread</h2>
+        <div id="err" class="error" hidden></div>
+        <div class="kpis">
+          <div class="k"><span class="eyebrow">Net spread</span><span class="v" id="kSpread">–</span><span class="s" id="kSpreadSub"></span></div>
+          <div class="k"><span class="eyebrow">If it closes on time</span><span class="v" id="kAnn">–</span><span class="s" id="kAnnSub"></span></div>
+          <div class="k"><span class="eyebrow">Market-implied odds</span><span class="v" id="kOdds">–</span><span class="s">that the deal closes</span></div>
+        </div>
+        <div class="hedge" id="hedge"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Your odds vs the market's</h2>
+        <div class="odds">
+          <div class="track" id="track" role="img" aria-label="Probability scale from 0 to 100 percent">
+            <div class="mark" id="mMarket"></div>
+            <div class="mark be" id="mBe"></div>
+          </div>
+          <div class="marklegend">
+            <span><span class="swatch"></span>Market prices in <b id="lMarket">–</b></span>
+            <span><span class="swatch be"></span>You break even at <b id="lBe">–</b> after costs</span>
+          </div>
+        </div>
+        <div class="slider">
+          <label for="q">I think the deal closes with probability <b id="qOut">90%</b></label>
+          <input id="q" type="range" min="0" max="100" step="1" value="90">
+        </div>
+        <div class="outcomes">
+          <div class="outcome c"><div class="t">If it closes</div><div class="n" id="oClose">–</div></div>
+          <div class="outcome b"><div class="t">If it breaks</div><div class="n" id="oBreak">–</div></div>
+        </div>
+        <div class="ev" id="ev"></div>
+        <div class="chart" id="chart"></div>
+      </section>
+
+      <section class="panel">
+        <h2>If the close slips</h2>
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th>Close in</th><th>Return</th><th>Per year</th></tr></thead>
+            <tbody id="delay"></tbody>
+          </table>
+        </div>
+        <div class="s" style="font-size:0.8rem;color:var(--muted)">Borrow fees grow with time; dividends are held fixed. Regulatory reviews are the usual cause of delays.</div>
+      </section>
+
+      <section class="panel">
+        <h2>Size it by the break loss</h2>
+        <div class="sizer">
+          <div class="field"><label for="acct">Account size ($)</label><input id="acct" inputmode="decimal" type="number" step="any" min="0" value="50000"></div>
+          <div class="field"><label for="maxloss">Max loss if it breaks (% of account)</label><input id="maxloss" inputmode="decimal" type="number" step="any" min="0" max="100" value="2"></div>
+        </div>
+        <div class="sizeout" id="size"></div>
+      </section>
+
+      <ul class="notes" id="notes"></ul>
+    </div>
+  </div>
+
+  <footer>
+    <p><b>How the odds are worked out.</b> If the target is worth the offer when the deal closes and the break price when it fails, then today's price = p × offer + (1 − p) × break price. Solving for p gives the market-implied odds. It ignores interest and the time value of money, which is the usual quick read on a deal.</p>
+    <p><b>What it leaves out.</b> The short acquirer leg's gain or loss if a stock deal breaks, competing bids, collars, CVRs, margin interest, and taxes. A break can also gap below your break-price guess.</p>
+    <p>Educational tool, not financial advice. It doesn't place trades or say which deals to buy.</p>
+  </footer>
+</div>
+
+<script>
+/*MATH*/
+</script>
+<script>
+(() => {
+  const PRESETS = {
+    video: { cash: 15, ratio: 0, target: 14, acquirer: 0, fallback: 10, days: 180, tdiv: 0, adiv: 0, borrow: 0, costsIn: 0.02 },
+    mixed: { cash: 22, ratio: 0.45, target: 63.4, acquirer: 95, fallback: 48, days: 150, tdiv: 0.4, adiv: 0.6, borrow: 0.5, costsIn: 0.03 },
+    risky: { cash: 40, ratio: 0, target: 33.1, acquirer: 0, fallback: 21, days: 365, tdiv: 0, adiv: 0, borrow: 0, costsIn: 0.03 },
+  };
+  const ids = ["cash", "ratio", "target", "acquirer", "fallback", "days", "tdiv", "adiv", "borrow", "costsIn"];
+  const $ = (id) => document.getElementById(id);
+  const num = (id) => { const v = parseFloat($(id).value); return Number.isFinite(v) ? v : 0; };
+  const usd = (x, sign = false) => {
+    const s = Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return (x < 0 ? "−$" : sign && x > 0 ? "+$" : "$") + s;
+  };
+  const pct = (x, dp = 1, sign = false) => {
+    if (!Number.isFinite(x)) return "n/a";
+    const s = Math.abs(x * 100).toFixed(dp) + "%";
+    return x < 0 ? "−" + s : sign && x > 0 ? "+" + s : s;
+  };
+  const odds = (p) => (Number.isFinite(p) ? (p * 100).toFixed(1) + "%" : "n/a");
+  const clamp01 = (p) => Math.min(1, Math.max(0, p));
+
+  function load(name) {
+    const p = PRESETS[name];
+    ids.forEach((id) => ($(id).value = p[id]));
+    document.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", String(c.dataset.preset === name)));
+    $("exampleTag").hidden = false;
+    render();
+  }
+
+  function deal() {
+    return {
+      target_price: num("target"), fallback_price: num("fallback"), days_to_close: num("days"),
+      cash: num("cash"), ratio: num("ratio"), acquirer_price: num("acquirer"),
+      target_dividends: num("tdiv"), acquirer_dividends: num("adiv"),
+      borrow_fee_rate: num("borrow") / 100, trading_costs: num("costsIn"),
+    };
+  }
+
+  function setV(el, text, value) {
+    el.textContent = text;
+    el.classList.toggle("pos", value > 0);
+    el.classList.toggle("neg", value < 0);
+  }
+
+  function chart(d, a, q) {
+    const W = 340, H = 150, L = 44, R = 20, T = 12, B = 26;
+    const y0 = (a.loss_if_break) / d.target_price, y1 = a.net_spread / d.target_price;
+    const lo = Math.min(y0, 0), hi = Math.max(y1, 0) || 0.01;
+    const X = (p) => L + p * (W - L - R);
+    const Y = (r) => T + (hi - r) / (hi - lo) * (H - T - B);
+    const ev = q * y1 + (1 - q) * y0;
+    const be = clamp01(a.breakeven_probability);
+    const t = [];
+    t.push(`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Expected return by probability the deal closes">`);
+    t.push(`<line x1="${L}" x2="${W - R}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--line)" stroke-width="1"/>`);
+    [0, 0.5, 1].forEach((p) => t.push(`<text x="${X(p)}" y="${H - 8}" text-anchor="middle">${p * 100}%</text>`));
+    [lo, 0, hi].forEach((r) => t.push(`<text x="${L - 6}" y="${Y(r) + 4}" text-anchor="end">${pct(r, 0)}</text>`));
+    t.push(`<line x1="${X(0)}" y1="${Y(y0)}" x2="${X(1)}" y2="${Y(y1)}" stroke="var(--accent)" stroke-width="2.5" fill="none"/>`);
+    if (Number.isFinite(a.breakeven_probability) && a.breakeven_probability >= 0 && a.breakeven_probability <= 1)
+      t.push(`<line x1="${X(be)}" x2="${X(be)}" y1="${T}" y2="${H - B}" stroke="var(--muted)" stroke-dasharray="3 3"/>`);
+    t.push(`<circle cx="${X(q)}" cy="${Y(ev)}" r="5" fill="${ev >= 0 ? "var(--close)" : "var(--break)"}" stroke="var(--panel)" stroke-width="2"/>`);
+    t.push(`</svg>`);
+    $("chart").innerHTML = t.join("");
+  }
+
+  function render() {
+    const d = deal();
+    const q = num("q") / 100;
+    $("qOut").textContent = Math.round(q * 100) + "%";
+    let a;
+    try { a = MA.analyze(d); $("err").hidden = true; }
+    catch (e) { $("err").textContent = e.message; $("err").hidden = false; return; }
+
+    setV($("kSpread"), usd(a.net_spread, true), a.net_spread);
+    $("kSpreadSub").textContent = `${pct(a.net_return, 2, true)} on $${d.target_price.toFixed(2)} · offer worth ${usd(a.deal_value)}`;
+    setV($("kAnn"), pct(a.annualized_net_return, 1, true), a.annualized_net_return);
+    $("kAnnSub").textContent = `per year, over ${d.days_to_close} days`;
+    $("kOdds").textContent = odds(a.implied_probability);
+
+    $("hedge").innerHTML = d.ratio > 0
+      ? `Hedge: for every 100 target shares you buy, short <b>${+(100 * d.ratio).toFixed(2)}</b> acquirer shares. Borrow cost ${usd(a.borrow_cost)}/share over the deal.`
+      : `All-cash deal: buy the target only. Nothing to short.`;
+
+    const pm = a.implied_probability, pb = a.breakeven_probability;
+    $("mMarket").style.left = clamp01(Number.isFinite(pm) ? pm : 0) * 100 + "%";
+    $("mBe").style.left = clamp01(Number.isFinite(pb) ? pb : 0) * 100 + "%";
+    $("lMarket").textContent = odds(pm);
+    $("lBe").textContent = odds(pb);
+
+    $("oClose").textContent = `${usd(a.net_spread, true)} (${pct(a.net_return, 1, true)})`;
+    $("oBreak").textContent = `${usd(a.loss_if_break, true)} (${pct(a.loss_if_break / d.target_price, 1, true)})`;
+    const er = MA.expectedReturn(d, q);
+    const edge = q - pb;
+    $("ev").innerHTML = `At your ${Math.round(q * 100)}%, the expected return is <b>${pct(er, 2, true)}</b> per share over the deal. ` +
+      (Number.isFinite(edge)
+        ? (edge > 0
+          ? `You're ${(edge * 100).toFixed(1)} points more confident than break-even. The bet only pays if your odds are right.`
+          : `That's below break-even, so on your own numbers this spread doesn't pay for the risk.`)
+        : "");
+    chart(d, a, q);
+
+    $("delay").innerHTML = MA.delayTable(d).map((r, i) =>
+      `<tr><td>${r.days} days${i ? ` <span style="color:var(--muted)">(+${r.days - d.days_to_close})</span>` : ""}</td><td>${pct(r.net_return, 2, true)}</td><td>${pct(r.annualized, 1, true)}</td></tr>`
+    ).join("");
+
+    const s = MA.positionSize(d, num("acct"), num("maxloss") / 100);
+    $("size").innerHTML = s
+      ? `Up to <b>${s.target_shares.toLocaleString()}</b> target shares (<b>${usd(s.capital)}</b>)${d.ratio > 0 ? `, short <b>${s.acquirer_shares_short.toLocaleString()}</b> acquirer shares` : ""}. A break at your break price would lose <b>${usd(s.loss_if_break)}</b>.`
+      : `Enter an account size, a max loss between 0 and 100%, and a break price below the target price.`;
+
+    $("notes").innerHTML = a.notes.map((n) => `<li>${n}</li>`).join("");
+  }
+
+  document.querySelectorAll(".chip").forEach((c) => c.addEventListener("click", () => load(c.dataset.preset)));
+  ids.forEach((id) => $(id).addEventListener("input", () => {
+    document.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", "false"));
+    $("exampleTag").textContent = "Your numbers";
+    render();
+  }));
+  ["q", "acct", "maxloss"].forEach((id) => $(id).addEventListener("input", render));
+  $("ticket").addEventListener("submit", (e) => e.preventDefault());
+  load("video");
+})();
+</script>
