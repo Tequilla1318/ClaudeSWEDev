@@ -119,7 +119,9 @@ def cagr(dates: NDArray[np.datetime64], values: NDArray[np.float64]) -> float:
 def max_drawdown(values: NDArray[np.float64]) -> float:
     """Largest peak-to-trough fall, as a positive fraction."""
     peak = np.maximum.accumulate(values)
-    return float(np.max(1.0 - values / peak))
+    with np.errstate(divide="ignore", invalid="ignore"):
+        dd = np.where(peak > 0, 1.0 - values / peak, 1.0)
+    return float(np.max(dd))
 
 
 def compare_to_index(

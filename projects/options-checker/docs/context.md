@@ -15,12 +15,13 @@ Feedback last read: 2026-11-05
 - S7 (#54, PR #68) in review: `occheck.risk` Monte Carlo + Kelly; `risk.html` fan chart.
 - S8 (#56, PR #69) in review: `occheck.data` loaders, `occheck download-data`, `/data/<KIND>.csv`
   in `occheck serve`. Drag-in UI ships with the backtester page (S10).
-- **S9 (#57) in review:** `occheck.backtest.putwrite` + `scripts/validate_put.py`; gate passes
-  (see docs/validation/put-replication.md).
+- S9 (#57, PR #70) in review: `occheck.backtest.putwrite` + `scripts/validate_put.py`; gate passes.
+- **S10 (#58) in review:** `occheck.backtest.rules` (delta/DTE/TP/manage/stop/leverage/cost, monthly
+  ATM mode), stress table, `backtest.html` (drop files, or auto-data under `occheck serve`).
 - Story PRs are **stacked** (each branch cut from the previous); merge in order, starting with #45.
 
 ## What's next
-- S10 (#58): rule engine (delta/DTE/take-profit/roll/sizing/spread), stress table, backtester page.
+- S11 (#60): manual-entry pre-trade option checker.
 
 ## Key facts for future sessions
 - Goal: "shovels" — tools that expose where traders lose money (costs, IV overpayment, timing,
