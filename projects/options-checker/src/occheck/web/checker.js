@@ -83,6 +83,12 @@ async function loadSymbol() {
   $("q-expiry").replaceChildren(...s.expiries.map((e) => { const o = el("option", null, e); o.value = e; return o; }));
   $("q-expiry").disabled = false;
   qStatus(`${s.symbol || sym.toUpperCase()} at ${s.spot}, Cboe delayed quote as of ${s.timestamp} UTC (about 15 minutes old).`);
+  fetch(`prices/${encodeURIComponent(sym)}.json`).then((r) => r.json()).then((p) => {
+    if (p.realized_vol) {
+      $("rv").value = (p.realized_vol * 100).toFixed(1);
+      $("q-status").textContent += ` Realized vol over the last 21 trading days: ${(p.realized_vol * 100).toFixed(1)}% (Yahoo Finance).`;
+    }
+  }).catch(() => {});
   const soon = s.expiries.find((e) => (new Date(e) - new Date()) / 864e5 >= 25) || s.expiries[0];
   $("q-expiry").value = soon;
   await loadExpiry();

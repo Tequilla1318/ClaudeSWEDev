@@ -33,7 +33,7 @@ try {
   const stamps = await page.$$eval(".ledger .stamp", (els) => els.map((e) => e.textContent));
   const net = await page.$eval(".summary .net", (e) => e.textContent);
   console.log("net:", net, "stamps:", stamps.join(", "));
-  if (stamps.length !== 8) fail(`expected 8 metrics, got ${stamps.length}`);
+  if (stamps.length !== 9) fail(`expected 9 metrics, got ${stamps.length}`);
   if (net !== "$1,442.45") fail(`expected net $1,442.45, got ${net}`);
   if (errors.length) fail("page errors: " + errors.join("; "));
   if (process.argv[2]) await page.screenshot({ path: process.argv[2], fullPage: true });
@@ -44,7 +44,7 @@ try {
     i.value = "0.25";
     i.dispatchEvent(new Event("change", { bubbles: true }));
   });
-  await page.waitForFunction(() => document.querySelectorAll(".ledger .stamp")[4]?.textContent === "OK", { timeout: 60_000 });
+  await page.waitForFunction(() => document.querySelectorAll(".ledger .stamp")[5]?.textContent === "OK", { timeout: 60_000 });
   const view = await page.$eval(".summary", (e) => e.textContent);
   if (!view.includes("wheel view")) fail("summary should say wheel view");
   console.log("thresholds: lottery stamp re-ran to OK;", view.includes("5 closed trades") ? "5 closed trades" : view);
@@ -79,6 +79,14 @@ try {
     if (stressRows < 5) fail(`expected >= 5 stress periods, got ${stressRows}`);
     if (process.argv[4]) await page.screenshot({ path: process.argv[4], fullPage: true });
 
+    // Auditor with local price history: Odean's measure gets data (sample: AAPL, SPY).
+    await page.goto(site + "audit.html?sample", { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => {
+      const li = [...document.querySelectorAll(".ledger li")].find((l) => l.textContent.includes("Odean's measure"));
+      return li && !li.textContent.includes("Run the app on your computer");
+    }, { timeout: 180_000 });
+    console.log("pgr: price history fetched locally and applied");
+
     // Checker prefill from Cboe delayed quotes (localhost only).
     await page.goto(site + "checker.html", { waitUntil: "domcontentloaded" });
     await page.waitForSelector("#prefill:not([hidden])", { timeout: 30_000 });
@@ -86,6 +94,8 @@ try {
     await page.click("#q-load");
     await page.waitForFunction(() => !document.getElementById("q-contract").disabled, { timeout: 120_000 });
     const filled = await page.$eval("#ask", (e) => e.value);
+    await page.waitForFunction(() => document.getElementById("rv").value !== "", { timeout: 60_000 });
+    console.log("realized vol prefill:", await page.$eval("#rv", (e) => e.value));
     const qs = await page.$eval("#q-status", (e) => e.textContent);
     console.log("prefill:", qs.slice(0, 70), "ask", filled);
     if (!(parseFloat(filled) > 0)) fail("prefill should fill the ask");

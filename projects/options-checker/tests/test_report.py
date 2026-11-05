@@ -86,7 +86,7 @@ def test_report_shape_and_json(fixture_report):
     r = fixture_report
     ids = [m["id"] for m in r["metrics"]]
     assert ids == [
-        "costs", "turnover", "expectancy", "disposition",
+        "costs", "turnover", "expectancy", "disposition", "disposition_pgr",
         "lottery", "zero_dte", "buyer_seller", "concentration",
     ]  # fmt: skip
     for m in r["metrics"]:
@@ -160,3 +160,16 @@ def test_thresholds_are_configurable():
     rts = [_rt(-30, 1, opt=True, price=0.30, dte=3)]
     assert audit.lottery(rts, th)["lottery_n"] == 0
     assert date(2025, 1, 4) == rts[0].expiry
+
+
+def test_pgr_metric_with_prices():
+    text = (FIXTURES / "flex_basic.csv").read_text()
+    r = report_from_csv(text, prices={"SPY": {"2025-03-10": 570.0}, "AAPL": {"2025-03-10": 210.0}})
+    pgr = next(m for m in r["metrics"] if m["id"] == "disposition_pgr")
+    # One sale day with holdings (2025-03-10: SPY sold at a loss, AAPL held at a paper gain),
+    # then 2025-04-01 (AAPL sold at a gain): too few counts to judge.
+    assert pgr["status"] == "na"
+    assert pgr["data"]["realized_losses"] == 1 and pgr["data"]["paper_gains"] == 1
+    assert r["summary"]["stock_symbols"] == ["AAPL", "SPY"]
+    na = next(m for m in report_from_csv(text)["metrics"] if m["id"] == "disposition_pgr")
+    assert na["status"] == "na" and "occheck serve" in na["display"]
