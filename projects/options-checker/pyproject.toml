@@ -1,0 +1,33 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "occheck"
+version = "0.1.0"
+description = "Free tools that show traders where their money goes. Educational, not advice."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+# Runtime stays pure Python + numpy so the wheel loads fast in Pyodide (browser).
+dependencies = ["numpy>=1.26"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6", "scipy>=1.11"]
+
+[project.scripts]
+occheck = "occheck.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/occheck"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
