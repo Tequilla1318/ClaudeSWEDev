@@ -151,3 +151,21 @@ footer.site { color: var(--ink-soft); font-size: 0.9rem; padding: 2rem 0 3rem; b
 .fan .band-inner { fill: var(--info); opacity: 0.38; }
 .fan .median { fill: none; stroke: var(--ink); stroke-width: 2; }
 .row .field input { width: 11rem; }
+
+/* Backtester */
+h2.flush { margin-top: 0; }
+.files { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.4rem; font-family: var(--display); }
+.files li { display: grid; grid-template-columns: 5.5rem 1fr; gap: 0 1rem; }
+.files .have { color: var(--ok); font-weight: 800; font-stretch: 125%; }
+.files .need { color: var(--na); font-weight: 800; font-stretch: 125%; }
+select { font: 1rem var(--display); color: var(--ink); background: var(--paper); border: 1px solid var(--rule);
+  border-radius: 4px; padding: 0.5rem 0.6rem; max-width: 100%; }
+.check { font: 600 0.95rem var(--display); display: flex; gap: 0.5rem; align-items: center; }
+.table-scroll { overflow-x: auto; margin-top: 0.75rem; }
+table { border-collapse: collapse; width: 100%; font: 0.98rem/1.4 var(--display); font-variant-numeric: tabular-nums; }
+th, td { text-align: right; padding: 0.45rem 0.6rem; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; white-space: normal; }
+thead th { font-weight: 700; color: var(--ink-soft); }
+td.worse { color: var(--flag); }
+.fan .strategy { fill: none; stroke: var(--ink); stroke-width: 2; }
+.fan .bench { fill: none; stroke: var(--info); stroke-width: 1.5; opacity: 0.7; }

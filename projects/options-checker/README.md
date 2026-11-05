@@ -12,7 +12,7 @@ See [docs/design.md](docs/design.md) and the
 | Black-Scholes core (`occheck.pricing`) | done (S2) |
 | Trade-log auditor | Web page + CLI (S3–S6) |
 | Risk-of-ruin calculator | Web page (S7) |
-| Premium-selling backtester | data (S8) and validated put-write model (S9, [report](docs/validation/put-replication.md)); rules + page next |
+| Premium-selling backtester | Web page + rule engine (S8–S10); model [validation report](docs/validation/put-replication.md) |
 | Pre-trade checker | planned (S11) |
 
 ## Use it
@@ -44,4 +44,6 @@ Browser smoke test (headless Chrome runs the real page through Pyodide):
 ```bash
 occheck build-site /tmp/site && (cd /tmp/site && python -m http.server 8765 &)
 cd webtest && npm ci && node smoke.mjs
+# backtester too: run `occheck serve --no-browser` and
+# SMOKE_BACKTEST=1 SITE_URL=http://127.0.0.1:8765/ node smoke.mjs
 ```
