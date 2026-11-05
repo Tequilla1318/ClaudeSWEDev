@@ -1,0 +1,8 @@
+{
+  "name": "occheck-webtest",
+  "private": true,
+  "type": "module",
+  "description": "Browser smoke test for the static site (runs the real page in headless Chrome).",
+  "scripts": { "smoke": "node smoke.mjs" },
+  "dependencies": { "puppeteer-core": "^24.0.0" }
+}

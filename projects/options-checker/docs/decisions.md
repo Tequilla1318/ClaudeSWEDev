@@ -56,3 +56,10 @@
 - **Concentration:** single loss > 5% of account = flag (forum rule of 5–10% per position).
 - **Expectancy:** win rate ≥ 60% with negative expectancy = flag (short-vol skew pattern).
 - **Why:** All in `audit.Thresholds` / `report.py` and shown on screen so users can judge them.
+
+## 2026-11-05 — Ship Python source to the browser, not a wheel
+- **Decision:** `occheck build-site` copies the package's .py files plus a manifest; the page
+  writes them into Pyodide's filesystem. Web assets live in `src/occheck/web/` so `pip install`
+  users get `occheck serve` with no extra download.
+- **Why:** No wheel build step in the site pipeline; the same function builds Pages and localhost.
+- **Rejected:** micropip-installing a built wheel (extra build step and a second artifact).

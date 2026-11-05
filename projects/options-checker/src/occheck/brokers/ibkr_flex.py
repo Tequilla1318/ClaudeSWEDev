@@ -129,7 +129,7 @@ def parse_flex_csv(text: str) -> ParseResult:
         keep = "EXECUTION" if "EXECUTION" in levels else "ORDER"
         dropped = [r for r in records if r.get("LevelOfDetail", "").upper() != keep]
         if dropped:
-            result.skipped[f"LevelOfDetail != {keep}"] += len(dropped)
+            result.skipped[f"summary rows (LevelOfDetail not {keep})"] += len(dropped)
         records = [r for r in records if r.get("LevelOfDetail", "").upper() == keep]
 
     has_option_cols = all(c in header for c in OPTION_COLUMNS)

@@ -104,7 +104,7 @@ def test_report_fixture_statuses(fixture_report):
     # TSLA lottery calls: premium 120 of 120 long premium -> 100% share.
     assert by["lottery"]["status"] == "flag"
     assert by["lottery"]["data"]["lottery_share"] == pytest.approx(1.0)
-    # Only 6 round trips (2 winners vs 4 losers) -> not enough for disposition.
+    # Only 6 round trips (3 winners, 3 losers) -> not enough for disposition.
     assert by["disposition"]["status"] == "na"
     # SPY stock loss -1001 = 2.0% of 50k account -> under the 5% flag.
     assert by["concentration"]["status"] == "ok"
