@@ -26,6 +26,7 @@ pip install "git+https://github.com/Tequilla1318/ClaudeSWEDev#subdirectory=proje
 occheck serve                      # opens http://127.0.0.1:3000/
 occheck audit trades.csv --account-value 50000   # same report in the terminal
 occheck download-data              # free Cboe/FRED histories -> ~/.cache/occheck
+# Under `occheck serve`, the pre-trade checker can also fill quotes from Cboe's delayed feed.
 ```
 
 ## Develop
