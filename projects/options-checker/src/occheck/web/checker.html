@@ -18,6 +18,21 @@
     <p class="lede">Type in the quote from your broker. See what the trade costs to enter, where it breaks even,
       and what the option's own price says about the odds.</p>
 
+    <section class="ticket" id="prefill" hidden>
+      <h2 class="flush">Fill from delayed quotes</h2>
+      <p class="privacy">Running on your computer, this page can fetch Cboe's free quotes, delayed about
+        15 minutes. Pick a contract and the form below fills in.</p>
+      <div class="row">
+        <label class="field">Symbol<input type="text" id="q-symbol" placeholder="SPY, AAPL, SPX" autocomplete="off" spellcheck="false"></label>
+        <button type="button" id="q-load">Load quotes</button>
+      </div>
+      <div class="row">
+        <label class="field">Expiry<select id="q-expiry" disabled></select></label>
+        <label class="field">Contract<select id="q-contract" disabled></select></label>
+      </div>
+      <p class="privacy" id="q-status" role="status" aria-live="polite"></p>
+    </section>
+
     <form class="ticket" id="form">
       <div class="row">
         <label class="field">I want to
@@ -53,8 +68,8 @@
       <p class="notes" id="disclaimer"></p>
     </section>
   </main>
-  <footer class="site">Educational tool, not financial advice. Nothing here is fetched from the internet;
-    the checker uses only what you type.</footer>
+  <footer class="site">Educational tool, not financial advice. Online, the checker uses only what you type.
+    Run locally with <code>occheck serve</code> to fill quotes from Cboe's delayed feed.</footer>
 </div>
 <script type="module" src="checker.js"></script>
 </body>

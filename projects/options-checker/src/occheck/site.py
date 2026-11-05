@@ -18,7 +18,7 @@ import time
 import webbrowser
 from pathlib import Path
 
-from occheck import data
+from occheck import data, quotes
 
 PACKAGE_DIR = Path(__file__).resolve().parent
 WEB_DIR = PACKAGE_DIR / "web"
@@ -55,6 +55,32 @@ def local_data_file(kind: str, max_age_hours: float = 20.0, directory: Path | No
     return path
 
 
+def quote_response(path: str) -> tuple[int, dict]:
+    """Answer ``/quotes/ping``, ``/quotes/<SYM>.json`` or ``/quotes/<SYM>/<YYYY-MM-DD>.json``.
+
+    Returns (HTTP status, JSON payload). Quotes are fetched from Cboe on this machine.
+    """
+    parts = path.split("?")[0].strip("/").split("/")[1:]
+    if parts == ["ping"]:
+        return 200, {"ok": True}
+    try:
+        if len(parts) == 1 and parts[0].endswith(".json"):
+            return 200, quotes.summary(quotes.fetch_chain(parts[0][:-5]))
+        if len(parts) == 2 and parts[1].endswith(".json"):
+            from datetime import date
+
+            chain = quotes.fetch_chain(parts[0])
+            expiry = date.fromisoformat(parts[1][:-5])
+            return 200, {
+                "timestamp": chain.timestamp,
+                "spot": chain.spot,
+                "options": quotes.expiry_rows(chain, expiry),
+            }
+    except (quotes.QuoteError, ValueError) as exc:
+        return 502, {"error": str(exc)}
+    return 404, {"error": "unknown quotes path"}
+
+
 class _Handler(http.server.SimpleHTTPRequestHandler):
     """Static files, plus ``/data/<KIND>.csv`` fetched on this machine (localhost only)."""
 
@@ -75,7 +101,18 @@ class _Handler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(body)
             return
+        if self.path.startswith("/quotes/"):
+            self._send_json(*quote_response(self.path))
+            return
         super().do_GET()
+
+    def _send_json(self, status: int, payload: dict) -> None:
+        body = json.dumps(payload).encode()
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
 
 
 def serve(port: int = 3000, open_browser: bool = True) -> None:  # pragma: no cover - blocking

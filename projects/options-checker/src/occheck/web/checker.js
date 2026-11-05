@@ -68,6 +68,62 @@ _r`));
   }
 });
 
+// --- Delayed-quote prefill: only when served by `occheck serve` on this computer. ---
+let chainRows = [];
+const qStatus = (msg) => { $("q-status").textContent = msg; };
+
+async function loadSymbol() {
+  const sym = $("q-symbol").value.trim();
+  if (!sym) { qStatus("Type a symbol first."); return; }
+  qStatus(`Loading ${sym.toUpperCase()} from Cboe…`);
+  const r = await fetch(`quotes/${encodeURIComponent(sym)}.json`);
+  const s = await r.json();
+  if (!r.ok) { qStatus(s.error || "Quotes unavailable."); return; }
+  $("spot").value = Math.round(s.spot * 100) / 100;
+  $("q-expiry").replaceChildren(...s.expiries.map((e) => { const o = el("option", null, e); o.value = e; return o; }));
+  $("q-expiry").disabled = false;
+  qStatus(`${s.symbol || sym.toUpperCase()} at ${s.spot}, Cboe delayed quote as of ${s.timestamp} UTC (about 15 minutes old).`);
+  const soon = s.expiries.find((e) => (new Date(e) - new Date()) / 864e5 >= 25) || s.expiries[0];
+  $("q-expiry").value = soon;
+  await loadExpiry();
+}
+
+async function loadExpiry() {
+  const sym = $("q-symbol").value.trim(), exp = $("q-expiry").value;
+  const r = await fetch(`quotes/${encodeURIComponent(sym)}/${exp}.json`);
+  const s = await r.json();
+  if (!r.ok) { qStatus(s.error || "Quotes unavailable."); return; }
+  chainRows = s.options;
+  const spot = s.spot;
+  $("q-contract").replaceChildren(...chainRows.map((o, i) => {
+    const opt = el("option", null, `${o.right === "C" ? "Call" : "Put"} ${o.strike} — bid ${o.bid.toFixed(2)} / ask ${o.ask.toFixed(2)}`);
+    opt.value = String(i);
+    return opt;
+  }));
+  // Default to the call nearest the money.
+  let best = 0;
+  chainRows.forEach((o, i) => { if (o.right === "C" && Math.abs(o.strike - spot) < Math.abs(chainRows[best].strike - spot)) best = i; });
+  $("q-contract").value = String(best);
+  $("q-contract").disabled = false;
+  $("expiry").value = exp;
+  fillContract();
+}
+
+function fillContract() {
+  const o = chainRows[Number($("q-contract").value)];
+  if (!o) return;
+  $("right").value = o.right;
+  $("strike").value = o.strike;
+  $("bid").value = o.bid;
+  $("ask").value = o.ask;
+}
+
+$("q-load").addEventListener("click", () => loadSymbol().catch((e) => qStatus("Quotes failed: " + e.message)));
+$("q-symbol").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); $("q-load").click(); } });
+$("q-expiry").addEventListener("change", () => loadExpiry().catch((e) => qStatus("Quotes failed: " + e.message)));
+$("q-contract").addEventListener("change", fillContract);
+fetch("quotes/ping").then((r) => { if (r.ok) $("prefill").hidden = false; }).catch(() => {});
+
 const exp = new Date();
 exp.setDate(exp.getDate() + 30);
 $("expiry").value = iso(exp);

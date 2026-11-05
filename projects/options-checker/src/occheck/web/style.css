@@ -176,3 +176,6 @@ fieldset.choice legend { padding: 0; margin-bottom: 0.25rem; }
 #settings summary { font: 600 1rem var(--display); cursor: pointer; }
 #settings .row { margin-top: 0.75rem; }
 #reset { margin-top: 1rem; }
+input[type="text"] { font: 1rem var(--display); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--rule); border-radius: 4px; padding: 0.5rem 0.6rem; max-width: 100%; }
+#q-contract { max-width: 24rem; }

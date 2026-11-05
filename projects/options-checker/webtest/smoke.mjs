@@ -78,6 +78,18 @@ try {
     console.log("backtest:", headline, "stress rows:", stressRows);
     if (stressRows < 5) fail(`expected >= 5 stress periods, got ${stressRows}`);
     if (process.argv[4]) await page.screenshot({ path: process.argv[4], fullPage: true });
+
+    // Checker prefill from Cboe delayed quotes (localhost only).
+    await page.goto(site + "checker.html", { waitUntil: "domcontentloaded" });
+    await page.waitForSelector("#prefill:not([hidden])", { timeout: 30_000 });
+    await page.type("#q-symbol", "SPY");
+    await page.click("#q-load");
+    await page.waitForFunction(() => !document.getElementById("q-contract").disabled, { timeout: 120_000 });
+    const filled = await page.$eval("#ask", (e) => e.value);
+    const qs = await page.$eval("#q-status", (e) => e.textContent);
+    console.log("prefill:", qs.slice(0, 70), "ask", filled);
+    if (!(parseFloat(filled) > 0)) fail("prefill should fill the ask");
+    if (process.argv[5]) await page.screenshot({ path: process.argv[5], fullPage: true });
   }
   if (errors.length) fail("page errors: " + errors.join("; "));
 } catch (err) {

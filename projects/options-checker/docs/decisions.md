@@ -86,3 +86,8 @@
   and Garvey & Murphy 2004), with 1.2x as a new "watch" level. Others unchanged.
 - **Why:** Owner asked on #66 for thresholds based on financial research, with sources.
 - **0.9 x VIX:** now also supported by Carr & Wu (2006): VIX ≈ ATM vol + ~2 points.
+
+## 2026-11-05 — Cboe delayed quotes for checker prefill (localhost only)
+- **Decision:** `occheck serve` fetches Cboe's delayed chain JSON on the user's machine and the
+  checker offers a symbol/expiry/contract picker. On GitHub Pages the checker stays manual-entry.
+- **Why:** Owner approved on #72. No CORS headers, and we don't republish data.
