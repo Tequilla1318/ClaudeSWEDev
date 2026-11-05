@@ -42,6 +42,15 @@ try {
   if (bands !== 2) fail(`expected 2 chart bands, got ${bands}`);
   if (process.argv[3]) await page.screenshot({ path: process.argv[3], fullPage: true });
 
+  // Pre-trade checker with its default inputs (buy a 105 call at 1.10 x 1.30, 30 days).
+  await page.goto(site + "checker.html?run", { waitUntil: "domcontentloaded" });
+  await page.waitForSelector("#result:not([hidden])", { timeout: 180_000 });
+  const chk = await page.$$eval("#ledger .stamp", (els) => els.map((e) => e.textContent));
+  const pay = await page.$eval("#headline .net", (e) => e.textContent);
+  console.log("checker:", pay, chk.join(", "));
+  if (pay !== "Pay $130.00") fail(`expected "Pay $130.00", got ${pay}`);
+  if (chk[0] !== "Flag") fail("16.7% spread should be flagged");
+
   // Backtester: needs the /data endpoint of `occheck serve` (not available on static hosting).
   if (process.env.SMOKE_BACKTEST) {
     await page.goto(site + "backtest.html?run", { waitUntil: "domcontentloaded" });

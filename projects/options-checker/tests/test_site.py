@@ -32,7 +32,7 @@ def test_build_site(tmp_path):
 
 def test_pages_link_local_assets_only(tmp_path):
     out = build_site(tmp_path / "site")
-    for page in ("index.html", "audit.html", "risk.html", "backtest.html"):
+    for page in ("index.html", "audit.html", "risk.html", "backtest.html", "checker.html"):
         html = (out / page).read_text()
         assert 'lang="en"' in html and 'name="viewport"' in html
         assert "not financial advice" in html

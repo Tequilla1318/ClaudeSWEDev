@@ -87,7 +87,7 @@ p.lede { font-size: 1.25rem; color: var(--ink-soft); margin: 1rem 0 0; max-width
 .ticket .privacy { color: var(--ink-soft); margin: 0; }
 .ticket .row { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: end; }
 .field { display: grid; gap: 0.25rem; font: 600 0.9rem var(--display); }
-input[type="number"], input[type="file"] {
+input[type="number"], input[type="file"], input[type="date"] {
   font: 1rem var(--display);
   color: var(--ink);
   background: var(--paper);
