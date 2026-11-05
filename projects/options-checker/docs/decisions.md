@@ -25,3 +25,15 @@
 - **Why:** No free historical option chains. Black-Scholes on SPX + VIX + T-bills, validated by
   replicating Cboe's PUT index before trusting any rule results.
 - **Rejected:** Paid chains (ORATS, Cboe DataShop) — owner chose free only.
+
+## 2026-11-05 — Design approved; open questions resolved by default
+- **Decision:** Owner approved the design ("Go for it. Build it"). Open questions without an
+  explicit answer take the design's proposal: Pyodide; lottery thresholds < $0.50 and ≤ 7 DTE;
+  pre-trade checker is **manual entry only** (no undocumented Cboe delayed-chain endpoint) until the
+  owner says otherwise; synthetic Flex fixtures until a real export is provided.
+
+## 2026-11-05 — Runtime dependency: numpy only
+- **Decision:** `occheck` depends only on numpy at runtime. Normal CDF via `math.erf`, root finding
+  hand-written; scipy is a dev dependency used to cross-check in tests.
+- **Why:** Pyodide downloads every dependency on first page load; scipy adds tens of MB.
+- **Rejected:** scipy at runtime (convenient, but heavy in the browser).
