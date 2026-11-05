@@ -9,10 +9,11 @@ The strategy sells cash-secured (or levered) SPX puts by forum-style rules:
 * re-open the next position the same day;
 * pay a bid-ask cost, as a share of the option price, on every open and close.
 
-Options are priced with :func:`occheck.pricing.bs_price` at vol = VIX x ``atm_vol_ratio``
-(validated for ATM puts in docs/validation/put-replication.md). Out-of-the-money puts
-really trade at higher implied vol than ATM (the skew), which this flat-vol model leaves
-out, so premiums for OTM strikes are understated and so is the crash loss in vol spikes.
+Options are priced with :func:`occheck.pricing.bs_price`. ATM vol = VIX x ``atm_vol_ratio``
+(validated against the Cboe PUT index); strikes away from the money follow the
+one-parameter smile in :mod:`occheck.backtest.skew` (validated against the 2%-OTM PUTY
+index; docs/validation/skew-calibration.md). Today's real SPX smile is steeper than the
+historical fit, so far-OTM premiums may still be understated in today's markets.
 """
 
 from __future__ import annotations
@@ -24,6 +25,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 from occheck.backtest.putwrite import cagr, max_drawdown, month_end_returns, monthly_expirations
+from occheck.backtest.skew import DEFAULT_BETA, smile_vol
 from occheck.pricing import bs_price, norm_cdf
 
 STRESS_PERIODS: tuple[tuple[str, str, str], ...] = (
@@ -49,6 +51,7 @@ class Rules:
     leverage: float = 1.0  # strike notional / equity; 1.0 = fully cash-secured
     cost_frac: float = 0.03  # bid-ask cost per side, as a share of the option price
     atm_vol_ratio: float = 0.9
+    skew_beta: float = DEFAULT_BETA  # smile slope for OTM strikes; 0 = flat vol
 
 
 @dataclass(frozen=True)
@@ -81,6 +84,23 @@ def strike_for_put_delta(s: float, t: float, r: float, sigma: float, delta: floa
         raise ValueError("delta must be between 0 and 1")
     d1 = -_ppf(delta)  # put delta = N(d1) - 1 = -delta
     return s * math.exp(-(d1 * sigma * math.sqrt(t) - (r + 0.5 * sigma * sigma) * t))
+
+
+def strike_for_put_delta_smile(
+    s: float, t: float, r: float, atm: float, delta: float, beta: float
+) -> float:
+    """Like :func:`strike_for_put_delta`, with each strike priced at its own smile vol.
+
+    Fixed-point iteration: price at the vol of the current strike guess, re-solve.
+    """
+    k = strike_for_put_delta(s, t, r, atm, delta)
+    for _ in range(50):
+        vol = float(smile_vol(atm, s, k, t, beta))
+        k_new = strike_for_put_delta(s, t, r, vol, delta)
+        if abs(k_new - k) < 1e-9 * s:
+            return k_new
+        k = k_new
+    return k
 
 
 @dataclass(frozen=True)
@@ -130,14 +150,17 @@ def run_short_puts(
         if rules.delta is None:
             k = float(spx[i])
         else:
-            k = strike_for_put_delta(spx[i], t0, r[i], vol[i], rules.delta)
-        prem = float(bs_price(spx[i], k, t0, r[i], vol[i], "P"))
+            k = strike_for_put_delta_smile(spx[i], t0, r[i], vol[i], rules.delta, rules.skew_beta)
+        prem = float(
+            bs_price(spx[i], k, t0, r[i], smile_vol(vol[i], spx[i], k, t0, rules.skew_beta), "P")
+        )
         contracts = rules.leverage * cash / k
         start_cash = cash
         cash += contracts * prem * (1.0 - rules.cost_frac)
         days = np.arange(i + 1, last + 1)
         tau = (expiry_day - day_num[days]) / 365.0
-        px = np.asarray(bs_price(spx[days], k, tau, r[days], vol[days], "P"), dtype=float)
+        vols = smile_vol(vol[days], spx[days], k, tau, rules.skew_beta)
+        px = np.asarray(bs_price(spx[days], k, tau, r[days], vols, "P"), dtype=float)
         gap = (day_num[days] - day_num[days - 1]).astype(float)
         cash_path = cash * np.cumprod(1.0 + r[days - 1] * gap / 360.0)
         reason = np.full(len(days), "", dtype=object)

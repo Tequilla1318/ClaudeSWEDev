@@ -27,6 +27,7 @@ from dataclasses import dataclass
 import numpy as np
 from numpy.typing import NDArray
 
+from occheck.backtest.skew import smile_vol
 from occheck.pricing import bs_price
 
 
@@ -67,33 +68,42 @@ def put_write(
     rate_pct: NDArray[np.float64],
     atm_vol_ratio: float = 0.9,
     cost_frac: float = 0.0,
+    moneyness: float = 1.0,
+    skew_beta: float = 0.0,
 ) -> PutWriteResult:
-    """Run the synthetic monthly ATM put-write on aligned daily arrays.
+    """Run the synthetic monthly put-write on aligned daily arrays.
 
     ``rate_pct`` is the T-bill rate in percent a year. ``cost_frac`` is the share of
     each sold put's premium lost to the bid-ask spread (0 to replicate the index,
-    which has no trading costs).
+    which has no trading costs). ``moneyness`` sets the strike as a share of spot at
+    the roll (0.98 = 2% out of the money, like Cboe's PUTY).
+
+    ``skew_beta`` adds the :mod:`occheck.backtest.skew` smile on top of the ATM level
+    (0 = flat, as in the PUT replication).
     """
     rolls = monthly_expirations(dates)
     if len(rolls) < 2:
         raise ValueError("need at least two monthly expirations in the data")
     first, last = int(rolls[0]), int(rolls[-1])
     r = rate_pct / 100.0
+    atm = vix / 100.0 * atm_vol_ratio
+    beta = skew_beta
     equity = np.full(len(dates), np.nan)
     cash = 1.0
     equity[first] = 1.0
     for a, b in zip(rolls[:-1], rolls[1:], strict=True):
-        k = spx[a]
+        k = spx[a] * moneyness
         n = cash / k  # puts per unit of equity: fully cash-secured
         t_exp = (dates[b] - dates[a]).astype(int) / 365.0
-        premium = bs_price(spx[a], k, t_exp, r[a], vix[a] / 100.0 * atm_vol_ratio, "P")
+        premium = bs_price(spx[a], k, t_exp, r[a], smile_vol(atm[a], spx[a], k, t_exp, beta), "P")
         cash += n * premium * (1.0 - cost_frac)
         days = np.arange(a + 1, b + 1)
         gap = np.diff(dates[a : b + 1]).astype(int)
         growth = np.cumprod(1.0 + r[a:b] * gap / 360.0)  # act/360 accrual, prior day's rate
         cash_path = cash * growth
         tau = (dates[b] - dates[days]).astype(int) / 365.0
-        puts = bs_price(spx[days], k, tau, r[days], vix[days] / 100.0 * atm_vol_ratio, "P")
+        vols = smile_vol(atm[days], spx[days], k, tau, beta)
+        puts = bs_price(spx[days], k, tau, r[days], vols, "P")
         equity[days] = cash_path - n * puts
         cash = float(equity[b])  # settle the expiring put, re-collateralize
     keep = slice(first, last + 1)

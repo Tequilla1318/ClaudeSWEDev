@@ -68,9 +68,11 @@
       <ul class="notes">
         <li>Option prices are modelled, not historical quotes. The model was checked against the real Cboe
           PutWrite index for at-the-money puts: <a href="https://github.com/Tequilla1318/ClaudeSWEDev/blob/main/projects/options-checker/docs/validation/put-replication.md" rel="noopener">validation report</a>.</li>
-        <li>Out-of-the-money puts really trade at higher implied volatility than at-the-money ones. The model
-          uses one volatility for every strike, so for delta rules both the premium collected and the losses
-          in a volatility spike are likely understated.</li>
+        <li>Out-of-the-money puts are priced with a modest volatility skew, checked against Cboe's 2%
+          out-of-the-money PutWrite index from 1990 to today:
+          <a href="https://github.com/Tequilla1318/ClaudeSWEDev/blob/main/projects/options-checker/docs/validation/skew-calibration.md" rel="noopener">skew calibration</a>.
+          Today's real SPX skew is about three times steeper than that historical fit, so far out-of-the-money
+          rules likely collect more premium in today's market than shown here.</li>
         <li>Fills happen at the daily close with a fixed cost. In a crash, real spreads widen and fills get worse.</li>
       </ul>
     </section>

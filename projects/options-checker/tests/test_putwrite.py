@@ -88,3 +88,17 @@ def test_gate_against_real_put_index(tmp_path):
     m = dates >= np.datetime64("2007-06-01")
     c = compare_to_index(put_write(dates[m], s[m], v[m], r[m]), put.dates, put.values)
     assert c["monthly_corr"] >= 0.9 and abs(c["cagr_diff"]) <= 0.015
+
+
+@pytest.mark.skipif(not os.environ.get("OCCHECK_LIVE"), reason="network test")
+def test_skew_gate_against_real_puty_index(tmp_path):
+    from occheck.backtest.skew import DEFAULT_BETA
+
+    load = lambda k: data.load_csv(data.download(k, tmp_path).read_text())  # noqa: E731
+    spx, vix, tb, puty = (load(k) for k in ("SPX", "VIX", "DTB3", "PUTY"))
+    dates, (s, v, r) = data.align(spx, vix, tb)
+    for lo, hi in (("1990-01-01", "2007-12-31"), ("2008-01-01", "2099-12-31")):
+        m = (dates >= np.datetime64(lo)) & (dates <= np.datetime64(hi))
+        res = put_write(dates[m], s[m], v[m], r[m], moneyness=0.98, skew_beta=DEFAULT_BETA)
+        c = compare_to_index(res, puty.dates, puty.values)
+        assert c["monthly_corr"] >= 0.9 and abs(c["cagr_diff"]) <= 0.015

@@ -12,8 +12,10 @@ from occheck.backtest.rules import (
     backtest_report,
     run_short_puts,
     strike_for_put_delta,
+    strike_for_put_delta_smile,
     summarize,
 )
+from occheck.backtest.skew import smile_vol
 from occheck.pricing import bs_greeks, bs_price
 
 
@@ -66,11 +68,13 @@ def test_monthly_atm_mode_equals_validated_put_write():
     spx = 2000 * np.exp(np.cumsum(rng.normal(0.0003, 0.01, n)))
     vix = 15 + 5 * np.abs(np.sin(np.arange(n) / 40))
     rate = np.full(n, 1.5)
-    rules = Rules(delta=None, monthly=True, take_profit=None, manage_dte=None, cost_frac=0.0)
-    a = run_short_puts(d, spx, vix, rate, rules)
-    b = put_write(d, spx, vix, rate)
-    assert np.array_equal(a.dates, b.dates)
-    np.testing.assert_allclose(a.equity, b.equity, rtol=1e-12)
+    for beta in (0.0, 0.10):
+        rules = Rules(delta=None, monthly=True, take_profit=None, manage_dte=None,
+                      cost_frac=0.0, skew_beta=beta)  # fmt: skip
+        a = run_short_puts(d, spx, vix, rate, rules)
+        b = put_write(d, spx, vix, rate, skew_beta=beta)
+        assert np.array_equal(a.dates, b.dates)
+        np.testing.assert_allclose(a.equity, b.equity, rtol=1e-12)
 
 
 def test_leverage_can_wipe_out_and_summary_says_so():
@@ -108,9 +112,19 @@ def test_monthly_atm_engine_tracks_real_put_index(tmp_path):
     spx, vix, tb, put = (load(k) for k in ("SPX", "VIX", "DTB3", "PUT"))
     d, (s, v, r) = data.align(spx, vix, tb)
     m = d >= np.datetime64("2007-06-01")
-    rules = Rules(delta=None, monthly=True, take_profit=None, manage_dte=None, cost_frac=0.0)
+    rules = Rules(delta=None, monthly=True, take_profit=None, manage_dte=None, cost_frac=0.0,
+                  skew_beta=0.0)  # fmt: skip
     res = run_short_puts(d[m], s[m], v[m], r[m], rules)
     c = compare_to_index(put_write(d[m], s[m], v[m], r[m]), put.dates, put.values)
     c2 = compare_to_index(type("R", (), {"dates": res.dates, "equity": res.equity})(), put.dates,
                           put.values)  # fmt: skip
     assert c2["monthly_corr"] == pytest.approx(c["monthly_corr"]) and c2["monthly_corr"] >= 0.9
+
+
+@pytest.mark.parametrize("delta", [0.16, 0.30, 0.50])
+def test_strike_for_delta_with_smile(delta):
+    s, t, r, atm, beta = 4000.0, 45 / 365, 0.04, 0.16, 0.10
+    k = strike_for_put_delta_smile(s, t, r, atm, delta, beta)
+    vol = float(smile_vol(atm, s, k, t, beta))
+    assert bs_greeks(s, k, t, r, vol, "P")["delta"] == pytest.approx(-delta, abs=1e-8)
+    assert vol >= atm if k < s else vol <= atm

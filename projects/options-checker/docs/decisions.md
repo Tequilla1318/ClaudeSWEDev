@@ -99,3 +99,11 @@
   the 1.5x flag is exactly Odean's published average.
 - **Why:** Owner suggested yfinance on #64. Yahoo has no CORS headers; nothing is republished.
 - **Rejected:** yfinance as a core dependency (pulls pandas; doesn't run in the browser).
+
+## 2026-11-05 — Volatility smile for OTM synthetic options (S15)
+- **Decision:** ATM vol stays 0.9 x VIX; strikes follow σ_ATM·clip(1 − β·z, 0.5, 3) with
+  z = ln(K/S)/(σ_ATM√T), β = 0.10. Rule engine uses it for delta strikes and daily marks.
+- **Why:** β in 0.05–0.15 keeps Cboe PUTY (2% OTM) within ±1.5 pts/yr in both 1990–2007 and
+  2008–now, and leaves PUT unchanged. Each era's best β passes on the other era.
+- **Rejected:** ATM derived from VIX through the smile (β 0.22: PUTY 1990–2007 +2.08 pts) and β tied
+  to the Cboe SKEW index (several fails). Today's market slope 0.30 is noted, not used.

@@ -10,12 +10,14 @@ Feedback last read: 2026-11-05 (PRs #45–#72, all comments)
 - S13 (#74, PR #82) in review: all cutoffs in `audit.Thresholds`, adjustable on audit.html; port 3000.
 - S14 (#75, PR #83) in review: docs/research/thresholds.md; disposition flag 1.5x / watch 1.2x.
 - S16 (#77, PR #84) in review: `occheck.quotes` + `/quotes/...`; checker prefill panel (local only).
-- **S17 (#78) in review:** `occheck.prices` (Odean PGR/PLR, realized vol, yfinance) + `/prices/...`;
-  auditor adds a 9th metric with local prices; checker prefills realized vol. Extra: `occheck[local]`.
+- S17 (#78, PR #85) in review: `occheck.prices` (Odean PGR/PLR, realized vol, yfinance) + `/prices/...`.
+- **S15 (#76) in review:** `occheck.backtest.skew` smile (ATM 0.9 x VIX + slope β=0.10 in z units),
+  used by the rule engine; `scripts/validate_skew.py` → docs/validation/skew-calibration.md. All
+  feedback-round stories built.
 - Feedback-round PRs are stacked again (each branch cut from the previous).
 
 ## What's next
-- S15 (#76): skew model for OTM synthetic options (last feedback story).
+- Owner reviews PRs #80, #82–#86 (stacked, merge in order).
 
 ## Owner answers (2026-11-05)
 - Pyodide approved. No real IBKR export will be shared (synthetic fixtures stay).
@@ -37,6 +39,8 @@ Feedback last read: 2026-11-05 (PRs #45–#72, all comments)
   The repo's Pages API path is blocked from cloud sessions; owner must enable Pages (Source: Actions).
 
 ## Known issues / gotchas
+- Today's SPX skew (β≈0.30, 2026-11-05) is ~3x the historical fit; PUTY (1990+) supports 0.05–0.15.
+  Deriving ATM from VIX through the smile (or tying β to Cboe SKEW) failed the PUTY pre-2008 check.
 - Cboe delayed chains: `cdn-api.cboe.com/api/global/delayed_quotes/options/<SYM>.json`, indexes
   prefixed `_` (e.g. `_SPX`); timestamps are UTC; SPX has ~30k contracts, so the endpoint serves
   a summary plus one expiry at a time; 5-minute in-memory cache.

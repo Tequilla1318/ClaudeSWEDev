@@ -19,7 +19,15 @@ DTB3 = "observation_date,DTB3\n2000-01-03,5.27\n2000-01-04,.\n2000-01-05,5.30\n"
 
 
 @pytest.mark.parametrize(
-    "text,kind", [(SPX, "SPX"), (VIX, "VIX"), (PUT, "PUT"), (DTB3, "DTB3"), ("DATE,BXM\n", "BXM")]
+    "text,kind",
+    [
+        (SPX, "SPX"),
+        (VIX, "VIX"),
+        (PUT, "PUT"),
+        (DTB3, "DTB3"),
+        ("DATE,BXM\n", "BXM"),
+        ("DATE,PUTY\n", "PUTY"),
+    ],  # fmt: skip
 )
 def test_detect_kind(text, kind):
     assert data.detect_kind(text) == kind

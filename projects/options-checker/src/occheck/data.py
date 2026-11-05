@@ -12,6 +12,7 @@ kind   header                                                      values
 SPX    ``DATE,SPX``                                                index close
 PUT    ``DATE,PUT``                                                Cboe PutWrite index
 BXM    ``DATE,BXM``                                                Cboe BuyWrite index
+PUTY   ``DATE,PUTY``                                               Cboe 2% OTM PutWrite index
 VIX    ``DATE,OPEN,HIGH,LOW,CLOSE``                                close, in vol points
 DTB3   ``observation_date,DTB3`` (or ``DATE,DTB3``)                3-month T-bill, % a year
 =====  ==========================================================  =====================
@@ -35,6 +36,7 @@ SOURCES: dict[str, dict[str, str]] = {
     "VIX": {"url": _CBOE.format("VIX"), "label": "VIX volatility index (Cboe)"},
     "PUT": {"url": _CBOE.format("PUT"), "label": "Cboe S&P 500 PutWrite index"},
     "BXM": {"url": _CBOE.format("BXM"), "label": "Cboe S&P 500 BuyWrite index"},
+    "PUTY": {"url": _CBOE.format("PUTY"), "label": "Cboe S&P 500 2% OTM PutWrite index"},
     "DTB3": {
         "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DTB3",
         "label": "3-month Treasury bill rate (FRED)",
