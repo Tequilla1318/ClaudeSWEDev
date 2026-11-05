@@ -72,14 +72,17 @@ def turnover(trades: list[Trade], account_value: float | None) -> dict[str, floa
 
 @dataclass(frozen=True)
 class Thresholds:
-    """Cut-offs for the bias metrics. Defaults are documented in docs/decisions.md."""
+    """Cut-offs for the report card. Each default's basis is in docs/research/thresholds.md."""
 
     lottery_max_premium: float = 0.50  # per-share option price
     lottery_max_dte: int = 7
     lottery_watch: float = 0.05  # share of long-option premium spent on lottery-type options
     lottery_flag: float = 0.25
     zero_dte_flag: float = 0.25  # share of option trades opened on expiry day (any = watch)
-    disposition_ratio_flag: float = 1.2  # losers held this many times longer than winners
+    disposition_ratio_watch: float = 1.2  # losers held this many times longer than winners
+    disposition_ratio_flag: float = (
+        1.5  # ~the size found by Odean (1998) and Garvey & Murphy (2004)
+    )
     high_win_rate: float = 0.6
     concentration_flag: float = 0.05  # single loss as a share of account value
     turnover_watch: float = 0.8  # annual turnover, Barber & Odean definition

@@ -176,7 +176,9 @@ def build_report(
             "na"
             if not enough or ratio is None
             else "flag"
-            if ratio > th.disposition_ratio_flag
+            if ratio >= th.disposition_ratio_flag
+            else "watch"
+            if ratio > th.disposition_ratio_watch
             else "ok",
             f"Needs at least {th.min_samples} winning and {th.min_samples} losing trades "
             f"(this file has {disp['n_winners']} and {disp['n_losers']})"

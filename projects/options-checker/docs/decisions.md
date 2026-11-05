@@ -79,3 +79,10 @@
   available (`convention="broker"`).
 - **Why:** Owner's choice on PR #65 ("what the wheel traders would want"). Totals are identical.
 - **Rejected:** Broker view as default.
+
+## 2026-11-05 — Thresholds reviewed against research (S14)
+- **Decision:** Every threshold's basis is in docs/research/thresholds.md, labelled
+  research-anchored or judgment call. Disposition flag moved 1.2x → 1.5x (effect size in Odean 1998
+  and Garvey & Murphy 2004), with 1.2x as a new "watch" level. Others unchanged.
+- **Why:** Owner asked on #66 for thresholds based on financial research, with sources.
+- **0.9 x VIX:** now also supported by Carr & Wu (2006): VIX ≈ ATM vol + ~2 points.
