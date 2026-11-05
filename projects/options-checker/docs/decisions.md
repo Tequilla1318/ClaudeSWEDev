@@ -37,3 +37,11 @@
   hand-written; scipy is a dev dependency used to cross-check in tests.
 - **Why:** Pyodide downloads every dependency on first page load; scipy adds tens of MB.
 - **Rejected:** scipy at runtime (convenient, but heavy in the browser).
+
+## 2026-11-05 — Assignments split into two round trips
+- **Decision:** An assigned short put is one round trip (premium kept, closed at 0) and the
+  stock is a separate round trip opened at the strike, as IBKR records it.
+- **Why:** Matches the broker's records so totals reconcile; total P&L is identical to the
+  "premium reduces cost basis" convention.
+- **Rejected:** Folding premium into stock cost basis (wheel-style accounting) — could be a view
+  option later.
