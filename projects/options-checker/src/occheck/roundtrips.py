@@ -11,13 +11,18 @@ closing commission.
 
 Expiries, assignments and exercises close the option at the price the broker
 reports (usually 0). An assignment's resulting stock position is a separate
-round trip opened at the strike, as brokers record it.
+round trip opened at the strike, as brokers record it ("broker" view).
+
+:func:`wheel_view` re-expresses assigned short options the way wheel traders track
+them: a put's premium lowers the cost basis of the shares it puts you into, and a
+covered call's premium raises the sale price of the shares called away. Total P&L is
+unchanged; only how it is split between round trips changes.
 """
 
 from __future__ import annotations
 
 from collections import deque
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import date, datetime
 from typing import Literal
 
@@ -47,6 +52,7 @@ class RoundTrip:
     expiry: date | None = None
     open_trade_id: str = ""
     close_trade_id: str = ""
+    wheel_premium: float = 0.0  # option P&L folded into this stock round trip (wheel view)
 
     @property
     def gross_pnl(self) -> float:
@@ -148,3 +154,66 @@ def match_round_trips(trades: list[Trade]) -> MatchResult:
             book.append(_Lot(t, left, t.commission / abs(t.quantity)))
     open_lots = [(lot.trade, lot.remaining) for book in books.values() for lot in book]
     return MatchResult(round_trips=out, open_lots=open_lots)
+
+
+def wheel_view(round_trips: list[RoundTrip], trades: list[Trade]) -> list[RoundTrip]:
+    """Fold assigned short options into the stock round trips they created or closed.
+
+    * Short put assigned: its gross P&L is spread over the shares bought on assignment
+      (lowering their open price) and the round trip starts when the put was sold.
+    * Short call assigned: its gross P&L is spread over the shares called away
+      (raising their close price).
+
+    Each option's commission moves with it. Assigned options whose shares are still
+    open at the end of the file stay as separate round trips.
+    """
+    assigned_stock = {
+        t.trade_id: t for t in trades if t.asset_class == "STK" and "ASSIGNED" in t.codes
+    }
+    out = list(round_trips)
+    for rt in round_trips:
+        if not (
+            rt.asset_class == "OPT" and rt.direction == "short" and rt.close_reason == "assigned"
+        ):
+            continue
+        if rt.right == "P":
+            linked = [
+                (i, s)
+                for i, s in enumerate(out)
+                if s.open_trade_id in assigned_stock
+                and s.underlying == rt.underlying
+                and s.open_time == rt.close_time
+                and s.direction == "long"
+            ]
+        else:
+            linked = [
+                (i, s)
+                for i, s in enumerate(out)
+                if s.close_trade_id in assigned_stock
+                and s.underlying == rt.underlying
+                and s.close_time == rt.close_time
+                and s.direction == "long"
+            ]
+        shares = sum(s.quantity * s.multiplier for _, s in linked)
+        if not linked or shares <= 0:
+            continue
+        per_share = rt.gross_pnl / shares
+        for i, s in linked:
+            weight = s.quantity * s.multiplier / shares
+            if rt.right == "P":
+                out[i] = replace(
+                    s,
+                    open_price=s.open_price - per_share,
+                    open_time=min(s.open_time, rt.open_time),
+                    commission=s.commission + rt.commission * weight,
+                    wheel_premium=s.wheel_premium + rt.gross_pnl * weight,
+                )
+            else:
+                out[i] = replace(
+                    s,
+                    close_price=s.close_price + per_share,
+                    commission=s.commission + rt.commission * weight,
+                    wheel_premium=s.wheel_premium + rt.gross_pnl * weight,
+                )
+        out = [x for x in out if x is not rt]
+    return out

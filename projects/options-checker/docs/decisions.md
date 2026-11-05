@@ -72,3 +72,10 @@
   0.87 and −1.02 pts. Full report: docs/validation/put-replication.md.
 - **Rejected:** Fitting on the whole sample only (in-sample); a full skew surface (needs data we
   don't have).
+
+## 2026-11-05 — Wheel cost-basis view is the default (supersedes "two round trips")
+- **Decision:** The report folds assigned short puts into the shares' cost basis and assigned
+  covered calls into the shares' sale price (`roundtrips.wheel_view`). The broker split stays
+  available (`convention="broker"`).
+- **Why:** Owner's choice on PR #65 ("what the wheel traders would want"). Totals are identical.
+- **Rejected:** Broker view as default.

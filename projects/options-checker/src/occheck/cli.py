@@ -23,6 +23,13 @@ def build_parser() -> argparse.ArgumentParser:
     audit.add_argument("csv", type=Path, help="path to the Flex Query CSV export")
     audit.add_argument("--account-value", type=float, default=None, help="account size, $")
     audit.add_argument("--json", action="store_true", help="print the report as JSON")
+    audit.add_argument(
+        "--convention",
+        choices=["wheel", "broker"],
+        default="wheel",
+        help="wheel: assigned premiums adjust the stock's cost basis (default); "
+        "broker: keep them as separate trades, as on the statement",
+    )
     serve = sub.add_parser("serve", help="run the web app on http://127.0.0.1")
     serve.add_argument("--port", type=int, default=8765)
     serve.add_argument("--no-browser", action="store_true", help="don't open a browser tab")
@@ -46,7 +53,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         from occheck.report import render_text, report_from_csv
 
         try:
-            report = report_from_csv(args.csv.read_text(), args.account_value)
+            report = report_from_csv(args.csv.read_text(), args.account_value, args.convention)
         except (FlexFormatError, OSError) as exc:
             print(f"occheck: {exc}", file=sys.stderr)
             return 2

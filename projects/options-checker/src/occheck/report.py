@@ -14,7 +14,7 @@ from typing import Any
 
 from occheck import audit
 from occheck.brokers.ibkr_flex import ParseResult, parse_flex_csv
-from occheck.roundtrips import match_round_trips
+from occheck.roundtrips import match_round_trips, wheel_view
 
 DISCLAIMER = "Educational tool, not financial advice. It describes your past trades only."
 
@@ -75,11 +75,21 @@ def build_report(
     parsed: ParseResult,
     account_value: float | None = None,
     thresholds: audit.Thresholds | None = None,
+    convention: str = "wheel",
 ) -> dict[str, Any]:
-    """Build the report card from parsed trades."""
+    """Build the report card from parsed trades.
+
+    ``convention="wheel"`` (default) folds assigned short-option premiums into the
+    stock's cost basis or sale price; ``"broker"`` keeps them as separate round trips,
+    as the statement shows them. Totals are the same either way.
+    """
+    if convention not in {"wheel", "broker"}:
+        raise ValueError("convention must be 'wheel' or 'broker'")
     th = thresholds or audit.Thresholds()
     trades = parsed.trades
     rts = match_round_trips(trades).round_trips
+    if convention == "wheel":
+        rts = wheel_view(rts, trades)
     costs = audit.cost_summary(trades, rts)
     turn = audit.turnover(trades, account_value)
     exp = audit.expectancy(rts)
@@ -259,6 +269,7 @@ def build_report(
         "summary": {
             "trades": len(trades),
             "round_trips": len(rts),
+            "convention": convention,
             "net_pnl": costs.net_pnl,
             "from": min(t.when for t in trades).isoformat() if trades else None,
             "to": max(t.when for t in trades).isoformat() if trades else None,
@@ -268,9 +279,18 @@ def build_report(
     }
 
 
-def report_from_csv(text: str, account_value: float | None = None) -> dict[str, Any]:
-    """Parse a Flex CSV and build the report card (entry point for the web page)."""
-    return build_report(parse_flex_csv(text), account_value)
+def report_from_csv(
+    text: str,
+    account_value: float | None = None,
+    convention: str = "wheel",
+    thresholds: dict[str, float] | None = None,
+) -> dict[str, Any]:
+    """Parse a Flex CSV and build the report card (entry point for the web page).
+
+    ``thresholds`` overrides fields of :class:`occheck.audit.Thresholds` by name.
+    """
+    th = audit.Thresholds(**(thresholds or {}))
+    return build_report(parse_flex_csv(text), account_value, th, convention)
 
 
 def render_text(report: dict[str, Any]) -> str:
