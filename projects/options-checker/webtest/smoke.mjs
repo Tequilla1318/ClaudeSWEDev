@@ -10,11 +10,18 @@ if (process.env.HTTPS_PROXY) {
   args.push(`--proxy-server=${process.env.HTTPS_PROXY}`, "--proxy-bypass-list=127.0.0.1;localhost",
     "--ignore-certificate-errors");
 }
-const browser = await puppeteer.launch({
-  executablePath: process.env.CHROME ?? "/usr/bin/google-chrome",
-  headless: true,
-  args,
-});
+// CI runners sometimes take longer than puppeteer's default 30 s to start Chrome; allow
+// 90 s and retry once before failing.
+async function launch() {
+  const opts = { executablePath: process.env.CHROME ?? "/usr/bin/google-chrome", headless: true, args, timeout: 90_000 };
+  try {
+    return await puppeteer.launch(opts);
+  } catch (err) {
+    console.error("Chrome did not start, retrying once:", err.message);
+    return puppeteer.launch(opts);
+  }
+}
+const browser = await launch();
 const fail = (msg) => { console.error("SMOKE FAIL:", msg); process.exitCode = 1; };
 try {
   const page = await browser.newPage();
@@ -41,6 +48,15 @@ try {
   if (!riskRows[1].includes("Kelly fraction 12.5%")) fail("Kelly fraction should be 12.5%");
   if (bands !== 2) fail(`expected 2 chart bands, got ${bands}`);
   if (process.argv[3]) await page.screenshot({ path: process.argv[3], fullPage: true });
+
+  // Pre-trade checker with its default inputs (buy a 105 call at 1.10 x 1.30, 30 days).
+  await page.goto(site + "checker.html?run", { waitUntil: "domcontentloaded" });
+  await page.waitForSelector("#result:not([hidden])", { timeout: 180_000 });
+  const chk = await page.$$eval("#ledger .stamp", (els) => els.map((e) => e.textContent));
+  const pay = await page.$eval("#headline .net", (e) => e.textContent);
+  console.log("checker:", pay, chk.join(", "));
+  if (pay !== "Pay $130.00") fail(`expected "Pay $130.00", got ${pay}`);
+  if (chk[0] !== "Flag") fail("16.7% spread should be flagged");
 
   // Backtester: needs the /data endpoint of `occheck serve` (not available on static hosting).
   if (process.env.SMOKE_BACKTEST) {

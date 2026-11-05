@@ -13,7 +13,7 @@ See [docs/design.md](docs/design.md) and the
 | Trade-log auditor | Web page + CLI (S3–S6) |
 | Risk-of-ruin calculator | Web page (S7) |
 | Premium-selling backtester | Web page + rule engine (S8–S10); model [validation report](docs/validation/put-replication.md) |
-| Pre-trade checker | planned (S11) |
+| Pre-trade checker | Web page (S11) |
 
 ## Use it
 **Online (after the Pages deploy runs):** https://tequilla1318.github.io/ClaudeSWEDev/options-checker/
