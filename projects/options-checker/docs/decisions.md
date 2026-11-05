@@ -91,3 +91,11 @@
 - **Decision:** `occheck serve` fetches Cboe's delayed chain JSON on the user's machine and the
   checker offers a symbol/expiry/contract picker. On GitHub Pages the checker stays manual-entry.
 - **Why:** Owner approved on #72. No CORS headers, and we don't republish data.
+
+## 2026-11-05 — yfinance for price history, localhost only, optional extra
+- **Decision:** `occheck[local]` adds yfinance; `occheck serve` exposes `/prices/<SYM>.json`.
+  Used for Odean's PGR/PLR (now a report metric) and the checker's realized-vol prefill. The
+  PGR/PLR ratio uses the same disposition thresholds (1.2x watch, 1.5x flag) — for this measure
+  the 1.5x flag is exactly Odean's published average.
+- **Why:** Owner suggested yfinance on #64. Yahoo has no CORS headers; nothing is republished.
+- **Rejected:** yfinance as a core dependency (pulls pandas; doesn't run in the browser).

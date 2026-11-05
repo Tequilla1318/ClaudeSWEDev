@@ -81,6 +81,36 @@ def quote_response(path: str) -> tuple[int, dict]:
     return 404, {"error": "unknown quotes path"}
 
 
+def price_response(path: str) -> tuple[int, dict]:
+    """Answer ``/prices/<SYM>.json?start=YYYY-MM-DD&end=YYYY-MM-DD`` from yfinance.
+
+    Returns daily closes plus 21-day realized vol. Fetched on this machine only.
+    """
+    from datetime import date, timedelta
+    from urllib.parse import parse_qs, urlsplit
+
+    from occheck import prices
+
+    url = urlsplit(path)
+    parts = url.path.strip("/").split("/")
+    if len(parts) != 2 or not parts[1].endswith(".json"):
+        return 404, {"error": "unknown prices path"}
+    q = parse_qs(url.query)
+    try:
+        sym = quotes.feed_symbol(parts[1][:-5]).lstrip("_")
+        end = date.fromisoformat(q["end"][0]) if "end" in q else date.today() + timedelta(days=1)
+        start = date.fromisoformat(q["start"][0]) if "start" in q else end - timedelta(days=120)
+        closes = prices.yfinance_closes(sym, start, end)
+    except (prices.PriceError, quotes.QuoteError, ValueError) as exc:
+        return 502, {"error": str(exc)}
+    ordered = [closes[d] for d in sorted(closes)]
+    return 200, {
+        "symbol": sym,
+        "closes": {d.isoformat(): c for d, c in sorted(closes.items())},
+        "realized_vol": prices.realized_vol(ordered),
+    }
+
+
 class _Handler(http.server.SimpleHTTPRequestHandler):
     """Static files, plus ``/data/<KIND>.csv`` fetched on this machine (localhost only)."""
 
@@ -100,6 +130,9 @@ class _Handler(http.server.SimpleHTTPRequestHandler):
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
             self.wfile.write(body)
+            return
+        if self.path.startswith("/prices/"):
+            self._send_json(*price_response(self.path))
             return
         if self.path.startswith("/quotes/"):
             self._send_json(*quote_response(self.path))

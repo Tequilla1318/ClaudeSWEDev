@@ -9,12 +9,13 @@ Feedback last read: 2026-11-05 (PRs #45–#72, all comments)
 - S12 (#73, PR #80) in review: wheel cost-basis view (`roundtrips.wheel_view`), report default.
 - S13 (#74, PR #82) in review: all cutoffs in `audit.Thresholds`, adjustable on audit.html; port 3000.
 - S14 (#75, PR #83) in review: docs/research/thresholds.md; disposition flag 1.5x / watch 1.2x.
-- **S16 (#77) in review:** `occheck.quotes` (Cboe delayed chains) + `/quotes/...` in `occheck serve`;
-  checker.html prefill panel, shown only when served locally.
+- S16 (#77, PR #84) in review: `occheck.quotes` + `/quotes/...`; checker prefill panel (local only).
+- **S17 (#78) in review:** `occheck.prices` (Odean PGR/PLR, realized vol, yfinance) + `/prices/...`;
+  auditor adds a 9th metric with local prices; checker prefills realized vol. Extra: `occheck[local]`.
 - Feedback-round PRs are stacked again (each branch cut from the previous).
 
 ## What's next
-- S17 (#78) yfinance (localhost); S15 (#76) skew model.
+- S15 (#76): skew model for OTM synthetic options (last feedback story).
 
 ## Owner answers (2026-11-05)
 - Pyodide approved. No real IBKR export will be shared (synthetic fixtures stay).

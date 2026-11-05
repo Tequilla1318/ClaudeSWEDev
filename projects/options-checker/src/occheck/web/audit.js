@@ -42,6 +42,24 @@ function render(report) {
 
 const DEFAULTS = Object.fromEntries([...document.querySelectorAll("[data-th]")].map((i) => [i.dataset.th, i.value]));
 let lastText = null;
+let priceText = null; // which file `prices` belongs to
+let prices = null; // {symbol: {"YYYY-MM-DD": close}} from the local server, if any
+const local = fetch("quotes/ping").then((r) => r.ok).catch(() => false);
+
+async function fetchPrices(summary) {
+  const from = new Date(summary.from); from.setDate(from.getDate() - 7);
+  const to = new Date(summary.to); to.setDate(to.getDate() + 2);
+  const out = {};
+  const failed = [];
+  for (const sym of summary.stock_symbols) {
+    status(`Fetching price history for ${sym} on this computer…`);
+    const r = await fetch(`prices/${encodeURIComponent(sym)}.json?start=${from.toISOString().slice(0, 10)}&end=${to.toISOString().slice(0, 10)}`);
+    const body = await r.json().catch(() => ({}));
+    if (r.ok) out[sym] = body.closes; else failed.push(sym);
+  }
+  status(failed.length ? `No price history for ${failed.join(", ")}; those holdings are skipped.` : "");
+  return out;
+}
 
 function settings() {
   const th = {};
@@ -64,13 +82,14 @@ async function run(text) {
     py.globals.set("csv_text", text);
     py.globals.set("account_value", Number.isFinite(acct) && acct > 0 ? acct : null);
     py.globals.set("settings_json", JSON.stringify(settings()));
+    py.globals.set("prices_json", priceText === text && prices ? JSON.stringify(prices) : "null");
     const out = py.runPython(`
 import json
 from occheck.brokers.ibkr_flex import FlexFormatError
 from occheck.report import report_from_csv
 try:
     _s = json.loads(settings_json)
-    _r = json.dumps({"ok": report_from_csv(csv_text, account_value, _s["convention"], _s["th"])}, default=str)
+    _r = json.dumps({"ok": report_from_csv(csv_text, account_value, _s["convention"], _s["th"], json.loads(prices_json))}, default=str)
 except (FlexFormatError, TypeError, ValueError) as exc:
     _r = json.dumps({"error": str(exc)})
 _r`);
@@ -81,6 +100,12 @@ _r`);
     }
     status("");
     render(res.ok);
+    if (priceText !== text && res.ok.summary.stock_symbols?.length && (await local)) {
+      priceText = text;
+      prices = await fetchPrices(res.ok.summary);
+      $("run").disabled = false;
+      return run(text); // re-run with prices: adds Odean's PGR/PLR measure
+    }
   } catch (err) {
     status("Something failed while loading or running the report: " + err.message, true);
   } finally {

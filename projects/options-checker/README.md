@@ -22,11 +22,12 @@ Demo with a sample file: `audit.html?sample`.
 
 **On your own computer** (needs Python 3.11+):
 ```bash
-pip install "git+https://github.com/Tequilla1318/ClaudeSWEDev#subdirectory=projects/options-checker"
+pip install "occheck[local] @ git+https://github.com/Tequilla1318/ClaudeSWEDev#subdirectory=projects/options-checker"
 occheck serve                      # opens http://127.0.0.1:3000/
 occheck audit trades.csv --account-value 50000   # same report in the terminal
 occheck download-data              # free Cboe/FRED histories -> ~/.cache/occheck
-# Under `occheck serve`, the pre-trade checker can also fill quotes from Cboe's delayed feed.
+# Under `occheck serve`: the checker fills quotes from Cboe's delayed feed and realized vol
+# from Yahoo Finance (yfinance), and the auditor adds Odean's PGR/PLR disposition measure.
 ```
 
 ## Develop

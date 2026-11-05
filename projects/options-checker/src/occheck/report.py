@@ -14,6 +14,7 @@ from typing import Any
 
 from occheck import audit
 from occheck.brokers.ibkr_flex import ParseResult, parse_flex_csv
+from occheck.prices import Prices, pgr_plr
 from occheck.roundtrips import match_round_trips, wheel_view
 
 DISCLAIMER = "Educational tool, not financial advice. It describes your past trades only."
@@ -76,8 +77,11 @@ def build_report(
     account_value: float | None = None,
     thresholds: audit.Thresholds | None = None,
     convention: str = "wheel",
+    prices: Prices | None = None,
 ) -> dict[str, Any]:
     """Build the report card from parsed trades.
+
+    ``prices`` (symbol -> {day: close}) enables Odean's PGR/PLR disposition measure.
 
     ``convention="wheel"`` (default) folds assigned short-option premiums into the
     stock's cost basis or sale price; ``"broker"`` keeps them as separate round trips,
@@ -192,6 +196,49 @@ def build_report(
         )
     )
 
+    if prices is None:
+        m.append(
+            _metric(
+                "disposition_pgr",
+                "Selling winners faster than losers (Odean's measure)",
+                "na",
+                "Needs daily prices for the stocks you held. Run the app on your computer "
+                "(occheck serve) to fetch them.",
+                "On each day you sold stock, Odean counted every holding as a gain or loss "
+                "realized or left on paper. His investors realized gains 1.5x as readily as "
+                "losses.",
+                "odean",
+                {},
+            )
+        )
+    else:
+        pp = pgr_plr(trades, prices)
+        r = pp["ratio"]
+        enough = (pp["realized_gains"] + pp["paper_gains"] >= th.min_samples
+                  and pp["realized_losses"] + pp["paper_losses"] >= th.min_samples)  # fmt: skip
+        m.append(
+            _metric(
+                "disposition_pgr",
+                "Selling winners faster than losers (Odean's measure)",
+                "na"
+                if not enough or r is None
+                else "flag"
+                if r >= th.disposition_ratio_flag
+                else "watch"
+                if r > th.disposition_ratio_watch
+                else "ok",
+                f"Not enough sale days yet (need {th.min_samples} gains and {th.min_samples} "
+                "losses counted)"
+                if not enough or r is None
+                else f"Gains realized {pp['pgr']:.1%} of the time, losses {pp['plr']:.1%} "
+                f"({r:.2f}x)",
+                "On each day you sold stock, every holding counts as a gain or loss realized or "
+                "left on paper. Odean's investors realized gains 1.5x as readily as losses.",
+                "odean",
+                pp,
+            )
+        )
+
     ls = lot["lottery_share"]
     m.append(
         _metric(
@@ -281,6 +328,7 @@ def build_report(
             "convention": convention,
             "net_pnl": costs.net_pnl,
             "from": min(t.when for t in trades).isoformat() if trades else None,
+            "stock_symbols": sorted({t.symbol for t in trades if t.asset_class == "STK"}),
             "to": max(t.when for t in trades).isoformat() if trades else None,
         },
         "metrics": m,
@@ -293,13 +341,22 @@ def report_from_csv(
     account_value: float | None = None,
     convention: str = "wheel",
     thresholds: dict[str, float] | None = None,
+    prices: dict[str, dict[str, float]] | None = None,
 ) -> dict[str, Any]:
     """Parse a Flex CSV and build the report card (entry point for the web page).
 
     ``thresholds`` overrides fields of :class:`occheck.audit.Thresholds` by name.
+    ``prices`` maps symbol -> {"YYYY-MM-DD": close} (from the localhost price endpoint).
     """
+    from datetime import date
+
     th = audit.Thresholds(**(thresholds or {}))
-    return build_report(parse_flex_csv(text), account_value, th, convention)
+    px = (
+        {sym: {date.fromisoformat(d): float(c) for d, c in s.items()} for sym, s in prices.items()}
+        if prices is not None
+        else None
+    )
+    return build_report(parse_flex_csv(text), account_value, th, convention, px)
 
 
 def render_text(report: dict[str, Any]) -> str:
