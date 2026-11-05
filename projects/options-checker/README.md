@@ -12,7 +12,7 @@ See [docs/design.md](docs/design.md) and the
 | Black-Scholes core (`occheck.pricing`) | done (S2) |
 | Trade-log auditor | Web page + CLI (S3–S6) |
 | Risk-of-ruin calculator | Web page (S7) |
-| Premium-selling backtester | data loaders done (S8); replication and rules next |
+| Premium-selling backtester | data (S8) and validated put-write model (S9, [report](docs/validation/put-replication.md)); rules + page next |
 | Pre-trade checker | planned (S11) |
 
 ## Use it

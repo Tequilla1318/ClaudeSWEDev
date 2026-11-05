@@ -63,3 +63,12 @@
   users get `occheck serve` with no extra download.
 - **Why:** No wheel build step in the site pipeline; the same function builds Pages and localhost.
 - **Rejected:** micropip-installing a built wheel (extra build step and a second artifact).
+
+## 2026-11-05 — Synthetic ATM vol = 0.9 x VIX (validated)
+- **Decision:** Price synthetic SPX options with vol = 0.9 x VIX by default.
+- **Why:** With VIX as ATM vol, the synthetic put-write beats the real PUT index by +3.35 pts/yr
+  (fails the 1.5-pt gate): VIX includes the out-of-the-money put skew. 0.9 was fitted on
+  2007–2016 and holds out of sample on 2017–2026 (+0.92 pts, corr 0.978); the reverse split gives
+  0.87 and −1.02 pts. Full report: docs/validation/put-replication.md.
+- **Rejected:** Fitting on the whole sample only (in-sample); a full skew surface (needs data we
+  don't have).
