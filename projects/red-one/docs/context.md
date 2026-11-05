@@ -87,6 +87,10 @@ A large multi-model "engineering team" room, each member with its own voice and 
 when needed then returning to work, with Claude moderating (see roadmap.md). Today: Claude + Gemini.
 
 ## Known issues / gotchas
+- **`python -m venv` on 3.11 ships setuptools 79.0.1**, which has known advisories (PYSEC-2026-3447,
+  GHSA-xmj3-9gf7-h52w; fixed in 84.1.0). pip-audit audits the whole venv, so it failed CI on the first
+  run after #35 merged. Every install path (security CI, dev container, `make install`) now upgrades
+  pip and setuptools first, and the build requires `setuptools>=84.1`.
 - Starlette warns that `TestClient` with `httpx` is deprecated (wants `httpx2`); harmless for now,
   revisit when bumping deps.
 - Never `pkill -f red_one` from a shell whose own command line contains "red_one"; it kills the shell.

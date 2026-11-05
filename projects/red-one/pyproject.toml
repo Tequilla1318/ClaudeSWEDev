@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=69", "wheel"]
+requires = ["setuptools>=84.1", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,7 +8,7 @@ version = "0.0.1"
 description = "Voice-activated, human-in-the-loop AI team. M1: a careful text chat with Claude."
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "Proprietary (not yet licensed for reuse)" }
+license = "LicenseRef-Proprietary"  # not yet licensed for reuse; decide at M9
 # Kept deliberately small (supply-chain risk). Pinned to known-good versions; bump in a PR.
 dependencies = [
     "fastapi==0.162.0",

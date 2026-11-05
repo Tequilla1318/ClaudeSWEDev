@@ -1,6 +1,7 @@
 .PHONY: run test lint fmt install
 
 install:
+	pip install --upgrade pip "setuptools>=84.1"
 	pip install -e ".[dev]"
 
 run:
