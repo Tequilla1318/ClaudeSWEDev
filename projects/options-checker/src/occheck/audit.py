@@ -76,9 +76,16 @@ class Thresholds:
 
     lottery_max_premium: float = 0.50  # per-share option price
     lottery_max_dte: int = 7
+    lottery_watch: float = 0.05  # share of long-option premium spent on lottery-type options
+    lottery_flag: float = 0.25
+    zero_dte_flag: float = 0.25  # share of option trades opened on expiry day (any = watch)
     disposition_ratio_flag: float = 1.2  # losers held this many times longer than winners
     high_win_rate: float = 0.6
     concentration_flag: float = 0.05  # single loss as a share of account value
+    turnover_watch: float = 0.8  # annual turnover, Barber & Odean definition
+    turnover_flag: float = 1.15
+    commission_watch: float = 0.10  # commissions as a share of gross profits
+    commission_flag: float = 0.25
     min_samples: int = 5
 
 

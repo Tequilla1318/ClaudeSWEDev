@@ -78,7 +78,7 @@ class _Handler(http.server.SimpleHTTPRequestHandler):
         super().do_GET()
 
 
-def serve(port: int = 8765, open_browser: bool = True) -> None:  # pragma: no cover - blocking
+def serve(port: int = 3000, open_browser: bool = True) -> None:  # pragma: no cover - blocking
     """Build the site into a temp dir and serve it on http://127.0.0.1:<port>/.
 
     Besides the static site, ``/data/<KIND>.csv`` serves free histories downloaded on

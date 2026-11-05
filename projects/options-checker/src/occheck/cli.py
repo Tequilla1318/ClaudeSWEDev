@@ -31,7 +31,7 @@ def build_parser() -> argparse.ArgumentParser:
         "broker: keep them as separate trades, as on the statement",
     )
     serve = sub.add_parser("serve", help="run the web app on http://127.0.0.1")
-    serve.add_argument("--port", type=int, default=8765)
+    serve.add_argument("--port", type=int, default=3000)
     serve.add_argument("--no-browser", action="store_true", help="don't open a browser tab")
     dl = sub.add_parser("download-data", help="fetch free Cboe/FRED histories to a folder")
     dl.add_argument("kinds", nargs="*", help="SPX VIX PUT BXM DTB3 (default: all)")

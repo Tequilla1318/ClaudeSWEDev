@@ -169,3 +169,10 @@ thead th { font-weight: 700; color: var(--ink-soft); }
 td.worse { color: var(--flag); }
 .fan .strategy { fill: none; stroke: var(--ink); stroke-width: 2; }
 .fan .bench { fill: none; stroke: var(--info); stroke-width: 1.5; opacity: 0.7; }
+
+fieldset.choice { border: 0; padding: 0; margin: 1rem 0 0; display: grid; gap: 0.35rem; font: 600 0.95rem var(--display); }
+fieldset.choice legend { padding: 0; margin-bottom: 0.25rem; }
+#settings { border-top: 1px solid var(--rule); padding-top: 0.75rem; }
+#settings summary { font: 600 1rem var(--display); cursor: pointer; }
+#settings .row { margin-top: 0.75rem; }
+#reset { margin-top: 1rem; }

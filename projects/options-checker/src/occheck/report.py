@@ -107,9 +107,9 @@ def build_report(
             "info"
             if share is None
             else "flag"
-            if share > 0.25
+            if share > th.commission_flag
             else "watch"
-            if share > 0.10
+            if share > th.commission_watch
             else "ok",
             f"{_money(costs.commission)} in commissions "
             f"({costs.commission_bps_of_notional:.1f} bps of {_money(costs.traded_notional)} "
@@ -129,9 +129,9 @@ def build_report(
             "info"
             if annual is None
             else "flag"
-            if annual > 1.15
+            if annual > th.turnover_flag
             else "watch"
-            if annual > 0.8
+            if annual > th.turnover_watch
             else "ok",
             f"{_money(turn['notional_per_year'])} traded per year"
             + ("" if annual is None else f" = {annual:.2f}x annual turnover"),
@@ -195,7 +195,13 @@ def build_report(
         _metric(
             "lottery",
             "Lottery-ticket options",
-            "na" if ls is None else "flag" if ls > 0.25 else "watch" if ls > 0.05 else "ok",
+            "na"
+            if ls is None
+            else "flag"
+            if ls > th.lottery_flag
+            else "watch"
+            if ls > th.lottery_watch
+            else "ok",
             "No long options"
             if ls is None
             else f"{_pct(ls)} of option premium paid went to options under "
@@ -214,7 +220,7 @@ def build_report(
         _metric(
             "zero_dte",
             "Same-day (0DTE) options",
-            "na" if z is None else "flag" if z > 0.25 else "watch" if z > 0 else "ok",
+            "na" if z is None else "flag" if z > th.zero_dte_flag else "watch" if z > 0 else "ok",
             "No options"
             if z is None
             else f"{_pct(z)} of option trades opened on expiry day, "
@@ -266,6 +272,7 @@ def build_report(
 
     return {
         "disclaimer": DISCLAIMER,
+        "thresholds": th.__dict__,
         "summary": {
             "trades": len(trades),
             "round_trips": len(rts),

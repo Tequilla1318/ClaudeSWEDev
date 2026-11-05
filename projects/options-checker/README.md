@@ -23,7 +23,7 @@ Demo with a sample file: `audit.html?sample`.
 **On your own computer** (needs Python 3.11+):
 ```bash
 pip install "git+https://github.com/Tequilla1318/ClaudeSWEDev#subdirectory=projects/options-checker"
-occheck serve                      # opens http://127.0.0.1:8765/
+occheck serve                      # opens http://127.0.0.1:3000/
 occheck audit trades.csv --account-value 50000   # same report in the terminal
 occheck download-data              # free Cboe/FRED histories -> ~/.cache/occheck
 ```
@@ -45,5 +45,5 @@ Browser smoke test (headless Chrome runs the real page through Pyodide):
 occheck build-site /tmp/site && (cd /tmp/site && python -m http.server 8765 &)
 cd webtest && npm ci && node smoke.mjs
 # backtester too: run `occheck serve --no-browser` and
-# SMOKE_BACKTEST=1 SITE_URL=http://127.0.0.1:8765/ node smoke.mjs
+# SMOKE_BACKTEST=1 SITE_URL=http://127.0.0.1:3000/ node smoke.mjs
 ```

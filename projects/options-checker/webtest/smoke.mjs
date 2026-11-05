@@ -38,6 +38,17 @@ try {
   if (errors.length) fail("page errors: " + errors.join("; "));
   if (process.argv[2]) await page.screenshot({ path: process.argv[2], fullPage: true });
 
+  // Adjusting a threshold re-runs the report: a $0.25 lottery cut un-flags the $0.40 calls.
+  await page.$eval("#settings", (d) => { d.open = true; });
+  await page.$eval('[data-th="lottery_max_premium"]', (i) => {
+    i.value = "0.25";
+    i.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+  await page.waitForFunction(() => document.querySelectorAll(".ledger .stamp")[4]?.textContent === "OK", { timeout: 60_000 });
+  const view = await page.$eval(".summary", (e) => e.textContent);
+  if (!view.includes("wheel view")) fail("summary should say wheel view");
+  console.log("thresholds: lottery stamp re-ran to OK;", view.includes("5 closed trades") ? "5 closed trades" : view);
+
   // Risk calculator: default inputs (75% wins, $100 / $250, 10% risked).
   await page.goto(site + "risk.html?run", { waitUntil: "domcontentloaded" });
   await page.waitForSelector("#result:not([hidden])", { timeout: 180_000 });

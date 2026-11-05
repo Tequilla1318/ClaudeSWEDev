@@ -28,6 +28,40 @@
         <button type="submit" id="run">Build report card</button>
         <button type="button" class="quiet" id="sample">Try a sample file</button>
       </div>
+      <details id="settings">
+        <summary>Adjust what gets flagged</summary>
+        <fieldset class="choice">
+          <legend>How to count assigned options</legend>
+          <label><input type="radio" name="convention" value="wheel" checked> Wheel view: premium adjusts the shares' cost</label>
+          <label><input type="radio" name="convention" value="broker"> Broker view: option and shares as separate trades</label>
+        </fieldset>
+        <div class="row">
+          <label class="field">Lottery option: premium under $<input type="number" data-th="lottery_max_premium" value="0.50" min="0.01" step="0.05"></label>
+          <label class="field">and days to expiry at most<input type="number" data-th="lottery_max_dte" value="7" min="0" step="1"></label>
+        </div>
+        <div class="row">
+          <label class="field">Lottery share: watch above %<input type="number" data-th="lottery_watch" data-pct value="5" min="0" step="1"></label>
+          <label class="field">flag above %<input type="number" data-th="lottery_flag" data-pct value="25" min="0" step="1"></label>
+          <label class="field">0DTE share: flag above %<input type="number" data-th="zero_dte_flag" data-pct value="25" min="0" step="1"></label>
+        </div>
+        <div class="row">
+          <label class="field">Turnover: watch above x<input type="number" data-th="turnover_watch" value="0.8" min="0" step="0.05"></label>
+          <label class="field">flag above x<input type="number" data-th="turnover_flag" value="1.15" min="0" step="0.05"></label>
+        </div>
+        <div class="row">
+          <label class="field">Commissions: watch above % of gross profit<input type="number" data-th="commission_watch" data-pct value="10" min="0" step="1"></label>
+          <label class="field">flag above %<input type="number" data-th="commission_flag" data-pct value="25" min="0" step="1"></label>
+        </div>
+        <div class="row">
+          <label class="field">Losers held longer: flag above x<input type="number" data-th="disposition_ratio_flag" value="1.2" min="0" step="0.05"></label>
+          <label class="field">High win rate, %<input type="number" data-th="high_win_rate" data-pct value="60" min="0" max="100" step="1"></label>
+        </div>
+        <div class="row">
+          <label class="field">Largest loss: flag above % of account<input type="number" data-th="concentration_flag" data-pct value="5" min="0" step="0.5"></label>
+          <label class="field">Fewest trades to judge a pattern<input type="number" data-th="min_samples" value="5" min="1" step="1"></label>
+        </div>
+        <button type="button" class="quiet" id="reset">Reset to defaults</button>
+      </details>
       <div class="status-line" id="status" role="status" aria-live="polite"></div>
     </form>
 
