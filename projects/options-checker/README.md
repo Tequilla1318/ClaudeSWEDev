@@ -12,7 +12,7 @@ See [docs/design.md](docs/design.md) and the
 | Black-Scholes core (`occheck.pricing`) | done (S2) |
 | Trade-log auditor | Web page + CLI (S3–S6) |
 | Risk-of-ruin calculator | Web page (S7) |
-| Premium-selling backtester | planned (S8–S10) |
+| Premium-selling backtester | data loaders done (S8); replication and rules next |
 | Pre-trade checker | planned (S11) |
 
 ## Use it
@@ -25,6 +25,7 @@ Demo with a sample file: `audit.html?sample`.
 pip install "git+https://github.com/Tequilla1318/ClaudeSWEDev#subdirectory=projects/options-checker"
 occheck serve                      # opens http://127.0.0.1:8765/
 occheck audit trades.csv --account-value 50000   # same report in the terminal
+occheck download-data              # free Cboe/FRED histories -> ~/.cache/occheck
 ```
 
 ## Develop
