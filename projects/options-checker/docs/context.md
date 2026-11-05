@@ -6,11 +6,12 @@ Feedback last read: 2026-11-05
 - Design approved by the owner in chat on 2026-11-05 ("Go for it. Build it"); design PR #45.
 - Backlog: epics #48 (M1), #52 (M2), #55 (M3), #59 (M4), #61 (M5); stories #46–#60.
 - S1 (#46, PR #62) in review: package scaffold, CLI with `--version`.
-- **S2 (#47) in review:** `occheck.pricing` — Black-Scholes-Merton price, Greeks, implied vol.
+- S2 (#47, PR #63) in review: `occheck.pricing` — Black-Scholes-Merton price, Greeks, implied vol.
+- **S3 (#49) in review:** `occheck.trades.Trade` model + `occheck.brokers.ibkr_flex` parser.
 - Story PRs are **stacked** (each branch cut from the previous); merge in order, starting with #45.
 
 ## What's next
-- S3 (#49): IBKR Flex CSV parser.
+- S4 (#50): FIFO round-trip matcher, P&L, cost drag, turnover.
 
 ## Key facts for future sessions
 - Goal: "shovels" — tools that expose where traders lose money (costs, IV overpayment, timing,
@@ -25,6 +26,8 @@ Feedback last read: 2026-11-05
   The repo's Pages API path is blocked from cloud sessions; owner must enable Pages (Source: Actions).
 
 ## Known issues / gotchas
+- Flex fixtures are synthetic (no real export yet). Option symbols follow IBKR's OCC-style
+  `AAPL  250117C00190000`; expiry/assignment rows carry `Notes/Codes` Ep / A / Ex.
 - `implied_vol` raises when an option has (numerically) no time value — vol is unidentifiable there.
 - Shallow single-branch clones don't track pushed branches; add a fetch refspec or the stop hook
   reports "unpushed commits".
