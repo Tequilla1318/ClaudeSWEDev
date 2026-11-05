@@ -123,3 +123,8 @@ Entries marked "(proposed)" are Claude's suggestions awaiting the owner's approv
 - 2026-11-02 — Security CI is a separate workflow living only on `project/red-one`
   (gitleaks-action, free for personal accounts; pip-audit) — keeps `main`'s shared CI untouched —
   rejected: editing the repo-wide ci.yml.
+- 2026-11-05 — Upgrade pip and setuptools (>=84.1) before installing, everywhere, and keep auditing
+  the whole venv including build tools — the venv's bundled setuptools had known advisories —
+  rejected: auditing only runtime dependencies (would hide toolchain vulnerabilities), or ignoring
+  the advisory IDs. Licence metadata switched to the SPDX form `LicenseRef-Proprietary` (the
+  table form is deprecated and stops building in Feb 2027).

@@ -2,7 +2,7 @@
   "name": "Red One",
   "image": "mcr.microsoft.com/devcontainers/python:1-3.11-bookworm",
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}/projects/red-one",
-  "postCreateCommand": "pip install --user -e '.[dev]'",
+  "postCreateCommand": "pip install --user --upgrade pip 'setuptools>=84.1' && pip install --user -e '.[dev]'",
   "forwardPorts": [8765],
   "portsAttributes": {
     "8765": {
