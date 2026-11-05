@@ -8,9 +8,32 @@ Educational tool, not financial advice. It does not place trades or recommend de
 
 ## Layout
 - `src/mergerarb/core.py` — the math (pure Python, no dependencies).
+- `src/mergerarb/scan.py` — finds pending deals on SEC EDGAR and prices them.
+- `src/mergerarb/extract.py` — reads cash price, exchange ratio and expected close from filing text.
+- `src/mergerarb/sources.py` — EDGAR and daily-price access, with rate limiting and a disk cache.
 - `web/math.js` — the same math for the browser; `tests/test_js_parity.py` checks it matches Python.
 - `web/page.html` + `web/build.py` — the single-file calculator page (`python web/build.py` writes
   `web/dist/index.html`, which is git-ignored).
+
+## Deal scanner
+```
+export SEC_USER_AGENT="Your Name you@example.com"   # the SEC rejects requests without a contact
+python -m mergerarb.scan --out deals.json
+python web/build.py --deals deals.json             # page with the deal list embedded
+```
+1. Searches EDGAR full-text search for tender offers (SC TO-T, last 120 days) and merger proxies
+   (DEFM14A 270 days, PREM14A 200 days). Skips amendments and SPACs (SIC 6770).
+2. Keeps one filing per target (tender > definitive proxy > preliminary proxy).
+3. From the target's EDGAR history: drops deals whose target filed a Form 25/15 after the deal
+   filing (closed), dates the announcement from the latest 8-K item 1.01, flags a later item 1.02
+   (termination).
+4. Extracts terms from the filing text (plus the Offer to Purchase exhibit for tender offers).
+5. Prices target and acquirer from Yahoo Finance's free chart endpoint; the close before the
+   announcement is the default break price.
+
+Anything ambiguous goes to a "needs review" list with the reason instead of being guessed:
+no terms found, cash/stock elections, unmatched acquirer ticker, price far from the offer, stale
+prices. About a third of recent merger proxies land there (many are not acquisitions at all).
 
 ## Key formulas
 - Deal value `V = cash + ratio × acquirer_price`; gross spread `S = V − target_price`.
@@ -30,5 +53,11 @@ pytest && ruff check .
 ```
 
 ## Known limits
-Ignores the short leg's P&L when a stock deal breaks, competing bids, collars, CVRs, margin
-interest and taxes; holds dividends fixed in the delay table.
+- Term extraction is regex over free text. Every deal carries the sentences it was read from, and
+  the page links to the filing; check before relying on a number.
+- Close dates are guesses (30 days for tenders, 120 for definitive proxies) when the filing
+  doesn't state one in a form the scanner reads; those rows are marked.
+- Yahoo's chart endpoint is free but unofficial and may change or rate-limit.
+- Collars, CVRs, ticking fees and elections are flagged, not valued.
+- Ignores the short leg's P&L when a stock deal breaks, competing bids, collars, CVRs, margin
+  interest and taxes; holds dividends fixed in the delay table.

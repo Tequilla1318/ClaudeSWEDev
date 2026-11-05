@@ -106,14 +106,63 @@ td { font-family: var(--mono); }
 footer { color: var(--muted); font-size: 0.8rem; max-width: 75ch; display: grid; gap: 6px; }
 footer p { margin: 0; }
 .example-tag { font-size: 0.75rem; color: var(--warn); font-weight: 600; }
+.example-tag a { color: var(--accent); }
+.dealinfo { display: grid; gap: 6px; font-size: 0.82rem; }
+.dealinfo ul { margin: 0; padding-left: 18px; color: var(--muted); }
+.deals { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 12px; min-width: 0; }
+.deals h2 { font-family: var(--display); font-size: 1.15rem; font-weight: 600; margin: 0; }
+.dealshead { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; justify-content: space-between; }
+.dealshead .sub { color: var(--muted); font-size: 0.85rem; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.dealtable { overflow-x: auto; max-height: 460px; overflow-y: auto; border-top: 1px solid var(--line); }
+.dealtable table th { position: sticky; top: 0; background: var(--panel); z-index: 1; }
+.dealtable tbody tr { cursor: pointer; }
+.dealtable tbody tr:hover td, .dealtable tbody tr:focus-visible td { background: var(--accent-soft); }
+.dealtable tbody tr[aria-selected="true"] td { background: var(--accent-soft); }
+.dealtable tbody tr:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.dname { display: grid; gap: 1px; min-width: 0; }
+@media (max-width: 520px) { .dealtable th, .dealtable td { padding: 7px 5px; font-size: 0.82rem; } .dealtable td:first-child { width: 52%; } }
+.dname .tk { font-weight: 600; }
+.dname .meta { font-family: var(--body); font-size: 0.74rem; color: var(--muted); white-space: normal; }
+.pill { display: inline-block; font: 600 0.66rem var(--body); letter-spacing: 0.04em; text-transform: uppercase; padding: 1px 6px; border-radius: 4px; border: 1px solid var(--line); color: var(--muted); margin-left: 4px; vertical-align: 1px; }
+.pill.warn { color: var(--warn); border-color: var(--warn); }
+td.pos { color: var(--close); } td.neg { color: var(--break); }
+.review { font-size: 0.85rem; }
+.review ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 4px; color: var(--muted); }
+.review a { color: var(--accent); }
 </style>
 
 <div class="wrap">
   <header>
     <div class="eyebrow">Merger arbitrage</div>
     <h1>Merger Arb Desk</h1>
-    <p>Enter a pending deal to see the spread, what odds the market is pricing in, what you'd earn per year if it closes on time, and what you'd lose if it breaks.</p>
+    <p>Pick a pending deal pulled from SEC filings, or enter your own, to see the spread, what odds the market is pricing in, what you'd earn per year if it closes on time, and what you'd lose if it breaks.</p>
   </header>
+
+  <section class="deals" aria-labelledby="dealsTitle">
+    <div class="dealshead">
+      <h2 id="dealsTitle">Pending deals from SEC EDGAR</h2>
+      <span class="sub" id="dealsSub"></span>
+    </div>
+    <div class="controls" role="group" aria-label="Sort and filter deals">
+      <span class="eyebrow">Sort</span>
+      <button class="chip" type="button" data-sort="annualized" aria-pressed="true">Per year</button>
+      <button class="chip" type="button" data-sort="net_return">Spread</button>
+      <button class="chip" type="button" data-sort="implied_probability">Market odds</button>
+      <button class="chip" type="button" id="onlyDated" aria-pressed="false">Only stated close dates</button>
+    </div>
+    <div class="dealtable">
+      <table>
+        <thead><tr><th>Deal</th><th>Spread</th><th>Per year</th><th>Odds</th></tr></thead>
+        <tbody id="dealRows"></tbody>
+      </table>
+    </div>
+    <div class="s" style="font-size:0.8rem;color:var(--muted)">Tap a deal to load it into the calculator. Terms are read from the filing text automatically; check them against the filing before relying on them. "Per year" assumes the deal closes on the date shown.</div>
+    <details class="review" id="reviewBox">
+      <summary id="reviewSum">Filings the scanner couldn't price</summary>
+      <ul id="reviewList"></ul>
+    </details>
+  </section>
 
   <div class="presets" role="group" aria-label="Example deals">
     <span class="eyebrow">Examples</span>
@@ -128,6 +177,7 @@ footer p { margin: 0; }
         <h2>Deal ticket</h2>
         <div class="example-tag" id="exampleTag">Hypothetical example. Replace with real prices.</div>
       </div>
+      <div class="dealinfo" id="dealInfo" hidden></div>
       <fieldset>
         <legend class="eyebrow">The offer</legend>
         <div class="field"><label for="cash">Cash per share ($)</label><input id="cash" inputmode="decimal" type="number" step="any" min="0"></div>
@@ -225,6 +275,9 @@ footer p { margin: 0; }
 /*MATH*/
 </script>
 <script>
+const DEALS = /*DEALS*/null;
+</script>
+<script>
 (() => {
   const PRESETS = {
     video: { cash: 15, ratio: 0, target: 14, acquirer: 0, fallback: 10, days: 180, tdiv: 0, adiv: 0, borrow: 0, costsIn: 0.02 },
@@ -249,8 +302,8 @@ footer p { margin: 0; }
   function load(name) {
     const p = PRESETS[name];
     ids.forEach((id) => ($(id).value = p[id]));
-    document.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", String(c.dataset.preset === name)));
-    $("exampleTag").hidden = false;
+    document.querySelectorAll("[data-preset]").forEach((c) => c.setAttribute("aria-pressed", String(c.dataset.preset === name)));
+    $("exampleTag").textContent = "Hypothetical example. Replace with real prices.";
     render();
   }
 
@@ -338,14 +391,77 @@ footer p { margin: 0; }
     $("notes").innerHTML = a.notes.map((n) => `<li>${n}</li>`).join("");
   }
 
-  document.querySelectorAll(".chip").forEach((c) => c.addEventListener("click", () => load(c.dataset.preset)));
+  // ---- EDGAR deal list ----
+  const esc = (x) => String(x ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  let sortKey = "annualized", onlyDated = false, selected = null;
+  const fmtDate = (iso) => iso ? new Date(iso + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
+  const offerText = (r) => [r.cash ? usd(r.cash) : "", r.ratio ? `${+r.ratio.toFixed(4)} ${esc(r.acquirer_ticker || "acq.")}` : ""].filter(Boolean).join(" + ");
+
+  function renderDeals() {
+    if (!DEALS) { $("dealsSub").textContent = "No deal snapshot loaded."; return; }
+    $("dealsSub").textContent = `${DEALS.deals.length} priced · prices as of ${fmtDate(DEALS.generated)}`;
+    let rows = DEALS.deals.slice();
+    if (onlyDated) rows = rows.filter((r) => r.close_basis !== "default guess");
+    rows.sort((a, b) => (b.analysis[sortKey] ?? -1e9) - (a.analysis[sortKey] ?? -1e9));
+    $("dealRows").innerHTML = rows.map((r) => {
+      const a = r.analysis;
+      const guess = r.close_basis === "default guess";
+      const warn = r.flags.length ? `<span class="pill warn" title="${esc(r.flags.join(" "))}">check</span>` : "";
+      return `<tr tabindex="0" data-cik="${r.target_cik}" aria-selected="${selected === r.target_cik}">
+        <td><div class="dname"><span class="tk">${esc(r.target_ticker)}<span class="pill">${esc(r.kind)}</span>${warn}</span>
+        <span class="meta">${esc(r.target)}${r.acquirer ? " ← " + esc(r.acquirer) : ""}</span>
+        <span class="meta">Offer ${offerText(r)} · price ${usd(r.target_price)} · close ${guess ? "~" : ""}${fmtDate(r.expected_close)}${guess ? " (guess)" : ""}</span></div></td>
+        <td class="${a.net_return >= 0 ? "pos" : "neg"}">${pct(a.net_return, 1, true)}</td>
+        <td class="${a.annualized >= 0 ? "pos" : "neg"}">${Math.abs(a.annualized) > 9.99 ? (a.annualized > 0 ? ">+999%" : "<−999%") : pct(a.annualized, 1, true)}</td>
+        <td>${odds(a.implied_probability)}</td></tr>`;
+    }).join("");
+    const rv = DEALS.review || [];
+    $("reviewSum").textContent = `${rv.length} filings the scanner couldn't price, and why`;
+    $("reviewList").innerHTML = rv.map((r) =>
+      `<li><a href="${esc(r.filing_url)}" target="_blank" rel="noopener">${esc(r.target)}${r.target_ticker ? " (" + esc(r.target_ticker) + ")" : ""}</a>, ${esc(r.filing_form)} ${esc(r.filing_date)}: ${esc(r.review)}</li>`
+    ).join("");
+  }
+
+  function loadDeal(cik) {
+    const r = DEALS.deals.find((d) => d.target_cik === cik);
+    if (!r) return;
+    selected = cik;
+    const v = { cash: r.cash, ratio: r.ratio, target: r.target_price, acquirer: r.acquirer_price || 0, fallback: r.break_price, days: r.days_to_close, tdiv: 0, adiv: 0, borrow: 0, costsIn: 0.02 };
+    ids.forEach((id) => ($(id).value = v[id]));
+    document.querySelectorAll("[data-preset]").forEach((c) => c.setAttribute("aria-pressed", "false"));
+    $("exampleTag").innerHTML = `Loaded from EDGAR: ${esc(r.target)} · <a href="${esc(r.filing_url)}" target="_blank" rel="noopener">Check the ${esc(r.filing_form)} filing</a>`;
+    const facts = [
+      `Prices as of ${fmtDate(r.price_date)}. Break price is the close before the ${r.announced ? fmtDate(r.announced) : "announcement"} deal announcement; change it to your own view.`,
+      r.close_basis === "default guess" ? "Close date is a guess; the filing didn't state one the scanner could read." : `Close date from the filing (${esc(r.close_basis)}).`,
+      "Dividends and borrow fees are set to zero. Add them under the costs section if they apply.",
+      ...r.flags.map(esc),
+    ];
+    $("dealInfo").innerHTML = `<ul>${facts.map((f) => `<li>${f}</li>`).join("")}</ul>`;
+    $("dealInfo").hidden = false;
+    if (r.ratio > 0) $("costs").open = true;
+    render();
+    renderDeals();
+    $("ticket").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+  }
+
+  $("dealRows").addEventListener("click", (e) => { const tr = e.target.closest("tr[data-cik]"); if (tr) loadDeal(+tr.dataset.cik); });
+  $("dealRows").addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { const tr = e.target.closest("tr[data-cik]"); if (tr) { e.preventDefault(); loadDeal(+tr.dataset.cik); } } });
+  document.querySelectorAll("[data-sort]").forEach((b) => b.addEventListener("click", () => {
+    sortKey = b.dataset.sort;
+    document.querySelectorAll("[data-sort]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    renderDeals();
+  }));
+  $("onlyDated").addEventListener("click", () => { onlyDated = !onlyDated; $("onlyDated").setAttribute("aria-pressed", String(onlyDated)); renderDeals(); });
+
+  document.querySelectorAll("[data-preset]").forEach((c) => c.addEventListener("click", () => { selected = null; $("dealInfo").hidden = true; load(c.dataset.preset); renderDeals(); }));
   ids.forEach((id) => $(id).addEventListener("input", () => {
-    document.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", "false"));
+    document.querySelectorAll("[data-preset]").forEach((c) => c.setAttribute("aria-pressed", "false"));
     $("exampleTag").textContent = "Your numbers";
     render();
   }));
   ["q", "acct", "maxloss"].forEach((id) => $(id).addEventListener("input", render));
   $("ticket").addEventListener("submit", (e) => e.preventDefault());
   load("video");
+  renderDeals();
 })();
 </script>
