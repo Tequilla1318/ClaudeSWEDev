@@ -26,6 +26,9 @@ def build_parser() -> argparse.ArgumentParser:
     serve = sub.add_parser("serve", help="run the web app on http://127.0.0.1")
     serve.add_argument("--port", type=int, default=8765)
     serve.add_argument("--no-browser", action="store_true", help="don't open a browser tab")
+    dl = sub.add_parser("download-data", help="fetch free Cboe/FRED histories to a folder")
+    dl.add_argument("kinds", nargs="*", help="SPX VIX PUT BXM DTB3 (default: all)")
+    dl.add_argument("--dir", type=Path, default=None, help="default: ~/.cache/occheck")
     build = sub.add_parser("build-site", help="write the static web app to a folder")
     build.add_argument("out", type=Path)
     return parser
@@ -52,6 +55,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         from occheck.site import serve
 
         serve(port=args.port, open_browser=not args.no_browser)
+    elif args.command == "download-data":
+        from occheck.data import SOURCES, download, load_csv
+
+        for kind in [k.upper() for k in args.kinds] or list(SOURCES):
+            path = download(kind, args.dir)
+            series = load_csv(path.read_text())
+            print(f"{kind}: {len(series)} days, {series.start} to {series.end} -> {path}")
     elif args.command == "build-site":
         from occheck.site import build_site
 

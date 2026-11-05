@@ -12,11 +12,13 @@ Feedback last read: 2026-11-05
 - S5 (#51, PR #66) in review: bias metrics, report card, `occheck audit <csv>`.
 - S6 (#53, PR #67) in review: static site (`src/occheck/web/`), `occheck serve` / `build-site`,
   Pages workflow `.github/workflows/options-checker-pages.yml`, browser smoke test `webtest/`.
-- **S7 (#54) in review:** `occheck.risk` Monte Carlo + Kelly; `risk.html` with a log-scale fan chart.
+- S7 (#54, PR #68) in review: `occheck.risk` Monte Carlo + Kelly; `risk.html` fan chart.
+- **S8 (#56) in review:** `occheck.data` loaders (SPX, VIX, PUT, BXM, DTB3), `occheck download-data`,
+  `/data/<KIND>.csv` endpoint in `occheck serve`. Drag-in UI ships with the backtester page (S10).
 - Story PRs are **stacked** (each branch cut from the previous); merge in order, starting with #45.
 
 ## What's next
-- S8 (#56): Cboe/FRED data loaders and validators (backtester milestone).
+- S9 (#57): synthetic put-write replication of Cboe PUT (validation gate).
 
 ## Key facts for future sessions
 - Goal: "shovels" — tools that expose where traders lose money (costs, IV overpayment, timing,
@@ -31,6 +33,8 @@ Feedback last read: 2026-11-05
   The repo's Pages API path is blocked from cloud sessions; owner must enable Pages (Source: Actions).
 
 ## Known issues / gotchas
+- FRED drops connections for a bare `occheck` User-Agent; `data.USER_AGENT` names the project
+  and repo URL, which works. Live data test: `OCCHECK_LIVE=1 pytest tests/test_data_live.py`.
 - Site loads Pyodide v314.0.7 (Python 3.14) + numpy from jsdelivr, then writes occheck's .py files
   (listed in `py/manifest.json`) into Pyodide's FS — no wheel build needed.
 - Headless Chrome in sessions needs `--proxy-server=$HTTPS_PROXY --ignore-certificate-errors`

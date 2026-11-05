@@ -14,8 +14,11 @@ import json
 import shutil
 import tempfile
 import threading
+import time
 import webbrowser
 from pathlib import Path
+
+from occheck import data
 
 PACKAGE_DIR = Path(__file__).resolve().parent
 WEB_DIR = PACKAGE_DIR / "web"
@@ -44,11 +47,46 @@ def build_site(out_dir: Path) -> Path:
     return out_dir
 
 
+def local_data_file(kind: str, max_age_hours: float = 20.0, directory: Path | None = None) -> Path:
+    """Path to a cached copy of ``kind``'s history, downloading it if missing or stale."""
+    path = Path(directory or data.cache_dir()) / f"{kind}.csv"
+    if not path.exists() or time.time() - path.stat().st_mtime > max_age_hours * 3600:
+        path = data.download(kind, path.parent)
+    return path
+
+
+class _Handler(http.server.SimpleHTTPRequestHandler):
+    """Static files, plus ``/data/<KIND>.csv`` fetched on this machine (localhost only)."""
+
+    def do_GET(self) -> None:  # noqa: N802 - http.server API
+        if self.path.startswith("/data/") and self.path.endswith(".csv"):
+            kind = self.path[len("/data/") : -len(".csv")].upper()
+            if kind not in data.SOURCES:
+                self.send_error(404, "unknown data file")
+                return
+            try:
+                body = local_data_file(kind).read_bytes()
+            except Exception as exc:  # network or parse failure: tell the page why
+                self.send_error(502, f"could not download {kind}: {exc}")
+                return
+            self.send_response(200)
+            self.send_header("Content-Type", "text/csv; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            return
+        super().do_GET()
+
+
 def serve(port: int = 8765, open_browser: bool = True) -> None:  # pragma: no cover - blocking
-    """Build the site into a temp dir and serve it on http://127.0.0.1:<port>/."""
+    """Build the site into a temp dir and serve it on http://127.0.0.1:<port>/.
+
+    Besides the static site, ``/data/<KIND>.csv`` serves free histories downloaded on
+    this machine (see :mod:`occheck.data`), so the backtester can fill them in itself.
+    """
     with tempfile.TemporaryDirectory(prefix="occheck-site-") as tmp:
         root = build_site(Path(tmp) / "site")
-        handler = functools.partial(http.server.SimpleHTTPRequestHandler, directory=str(root))
+        handler = functools.partial(_Handler, directory=str(root))
         with http.server.ThreadingHTTPServer(("127.0.0.1", port), handler) as httpd:
             url = f"http://127.0.0.1:{httpd.server_address[1]}/"
             print(f"occheck: serving {url}  (Ctrl+C to stop)")
