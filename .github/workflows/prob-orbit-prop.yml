@@ -1,0 +1,45 @@
+# C++ checks for the prob-orbit-prop side project. Lives only on the
+# project/prob-orbit-prop branch (never merged to main). The shared CI workflow
+# (ci.yml) covers the Python side: pip install (builds the extension), ruff,
+# black --check, pytest.
+name: prob-orbit-prop C++
+
+on:
+  pull_request:
+    branches: [project/prob-orbit-prop]
+    paths:
+      - "projects/prob-orbit-prop/**"
+      - ".github/workflows/prob-orbit-prop.yml"
+  push:
+    branches: [project/prob-orbit-prop]
+    paths:
+      - "projects/prob-orbit-prop/**"
+      - ".github/workflows/prob-orbit-prop.yml"
+
+defaults:
+  run:
+    working-directory: projects/prob-orbit-prop
+
+jobs:
+  cpp:
+    name: Build, test, format (C++)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tools
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ninja-build clang-format
+
+      - name: clang-format
+        run: |
+          clang-format --version
+          find cpp -name '*.hpp' -o -name '*.cpp' | xargs clang-format --dry-run --Werror
+
+      - name: Configure
+        run: cmake -S . -B build/cpp -G Ninja -DPOP_BUILD_TESTS=ON -DPOP_WERROR=ON
+
+      - name: Build
+        run: cmake --build build/cpp
+
+      - name: Test
+        run: ctest --test-dir build/cpp --output-on-failure

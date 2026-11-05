@@ -26,3 +26,13 @@ Append-only. Format: date — decision — why — alternatives rejected.
   tests run offline — rejected: download at test time.
 - 2026-11-01 — Side project on long-lived branch `project/prob-orbit-prop`, never merged to `main`; story PRs
   target that branch — owner instruction — rejected: merging the project into main.
+- 2026-11-01 — Build: scikit-build-core + CMake ≥ 3.24 + pybind11; static `pop_core` library linked into the
+  extension and the Catch2 tests; Release by default, no `-ffast-math` — one build serves pip, CTest and later
+  Google Benchmark — rejected: setuptools + pybind11 setup helpers (no clean path to CTest/benchmarks).
+- 2026-11-01 — Catch2 v3.7.1 via CMake FetchContent from GitHub (pinned tag) — GitHub is reachable from the
+  cloud session and CI; no system package needed — rejected: GoogleTest (heavier; either would do).
+- 2026-11-01 — C++ CI in a project-specific workflow `.github/workflows/prob-orbit-prop.yml` on the project
+  branch (clang-format, `-Werror` build, CTest); Python stays in the shared `ci.yml` — keeps main's CI untouched
+  — rejected: adding a CMake step to the shared workflow on main.
+- 2026-11-01 — clang-format: Google style, 100-column limit — owner had no preference; Google is a common
+  default and 100 columns fits template-heavy numeric code — rejected: LLVM style.
