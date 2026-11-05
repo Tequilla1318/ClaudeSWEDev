@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Risk-of-ruin calculator</title>
+<meta name="description" content="See how likely your position sizing is to cause a deep drawdown. Monte Carlo in your browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="site"><a class="home" href="./">Options Checker</a></header>
+  <main>
+    <h1>Risk-of-ruin calculator</h1>
+    <p class="lede">The same strategy can survive or blow up depending only on how much you risk per trade.
+      This runs 10,000 simulated runs of your trades and shows the spread of outcomes.</p>
+
+    <form class="ticket" id="form">
+      <div class="row">
+        <label class="field">Win rate, %<input type="number" id="win" value="75" min="1" max="99" step="1"></label>
+        <label class="field">Average win, $<input type="number" id="avgwin" value="100" min="0.01" step="any"></label>
+        <label class="field">Average loss, $<input type="number" id="avgloss" value="250" min="0.01" step="any"></label>
+      </div>
+      <div class="row">
+        <label class="field">Risk per trade, % of account<input type="number" id="risk" value="10" min="0.1" max="100" step="0.1"></label>
+        <label class="field">Number of trades<input type="number" id="trades" value="200" min="10" max="1000" step="10"></label>
+        <label class="field">Drawdown that hurts, %<input type="number" id="dd" value="50" min="5" max="95" step="5"></label>
+      </div>
+      <p class="privacy">"Risk per trade" is what you lose on an average losing trade, as a share of the account
+        at that moment. For a cash-secured put, that is the realistic loss, not the whole collateral.</p>
+      <div class="row"><button type="submit" id="run">Run 10,000 simulations</button></div>
+      <div class="status-line" id="status" role="status" aria-live="polite"></div>
+    </form>
+
+    <section id="result" hidden>
+      <p class="summary" id="headline"></p>
+      <figure class="fan">
+        <svg id="chart" role="img" aria-labelledby="chart-cap"></svg>
+        <figcaption id="chart-cap">Account value over the trades, as a multiple of where you started (log scale, so halving and doubling look the same size).
+          Dark band: middle half of runs. Light band: 90% of runs. Line: the median run.</figcaption>
+      </figure>
+      <ol class="ledger" id="ledger"></ol>
+      <p class="notes">Assumes trades are independent and your win rate and average win and loss stay the
+        same. Real trades cluster: losses often arrive together in a crash, so real risk is higher than this.
+        Research: <a href="https://en.wikipedia.org/wiki/Kelly_criterion" rel="noopener">Kelly criterion</a>,
+        <a href="https://en.wikipedia.org/wiki/Gambler%27s_ruin" rel="noopener">gambler's ruin</a>.</p>
+    </section>
+  </main>
+  <footer class="site">Educational tool, not financial advice.</footer>
+</div>
+<script type="module" src="risk.js"></script>
+</body>
+</html>

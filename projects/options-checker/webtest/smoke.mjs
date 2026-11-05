@@ -30,6 +30,17 @@ try {
   if (net !== "$1,442.45") fail(`expected net $1,442.45, got ${net}`);
   if (errors.length) fail("page errors: " + errors.join("; "));
   if (process.argv[2]) await page.screenshot({ path: process.argv[2], fullPage: true });
+
+  // Risk calculator: default inputs (75% wins, $100 / $250, 10% risked).
+  await page.goto(site + "risk.html?run", { waitUntil: "domcontentloaded" });
+  await page.waitForSelector("#result:not([hidden])", { timeout: 180_000 });
+  const riskRows = await page.$$eval("#ledger .display", (els) => els.map((e) => e.textContent));
+  const bands = await page.$$eval("#chart path", (els) => els.length);
+  console.log("risk:", riskRows[1]);
+  if (riskRows.length !== 4) fail(`expected 4 risk rows, got ${riskRows.length}`);
+  if (!riskRows[1].includes("Kelly fraction 12.5%")) fail("Kelly fraction should be 12.5%");
+  if (bands !== 2) fail(`expected 2 chart bands, got ${bands}`);
+  if (process.argv[3]) await page.screenshot({ path: process.argv[3], fullPage: true });
 } catch (err) {
   fail(err.message);
 } finally {

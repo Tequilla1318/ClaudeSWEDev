@@ -12,7 +12,16 @@ def test_python_sources_excludes_web_and_cache():
 
 def test_build_site(tmp_path):
     out = build_site(tmp_path / "site")
-    for f in ("index.html", "audit.html", "audit.js", "py.js", "style.css", "sample-trades.csv"):
+    for f in (
+        "index.html",
+        "audit.html",
+        "audit.js",
+        "risk.html",
+        "risk.js",
+        "py.js",
+        "style.css",
+        "sample-trades.csv",
+    ):
         assert (out / f).is_file(), f
     manifest = json.loads((out / "py" / "manifest.json").read_text())
     assert "occheck/report.py" in manifest["files"]
@@ -23,7 +32,7 @@ def test_build_site(tmp_path):
 
 def test_pages_link_local_assets_only(tmp_path):
     out = build_site(tmp_path / "site")
-    for page in ("index.html", "audit.html"):
+    for page in ("index.html", "audit.html", "risk.html"):
         html = (out / page).read_text()
         assert 'lang="en"' in html and 'name="viewport"' in html
         assert "not financial advice" in html
