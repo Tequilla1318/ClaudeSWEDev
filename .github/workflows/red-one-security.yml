@@ -38,7 +38,9 @@ jobs:
         run: |
           python -m venv .venv
           . .venv/bin/activate
-          pip install --upgrade pip
+          # The venv ships an old setuptools with known advisories; upgrade the
+          # packaging tools first so the audit checks a patched toolchain.
+          pip install --upgrade pip "setuptools>=84.1"
           pip install -e ".[dev]" pip-audit
       - name: Audit installed packages for known vulnerabilities
         run: |

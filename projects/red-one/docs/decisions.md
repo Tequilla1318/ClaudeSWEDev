@@ -117,9 +117,24 @@ Entries marked "(proposed)" are Claude's suggestions awaiting the owner's approv
 - 2026-11-02 — Red One's Claude uses an API key, not the owner's Pro sign-in — Agent SDK docs require
   API-key auth for apps built on Claude; Pro sign-in would risk the account — rejected: powering the
   app with the Pro subscription (owner's request). M1 develops in stub mode until a key exists.
+- 2026-11-02 — (proposed) Run Red One inside Claude Code cloud sessions on the Pro plan: the consult
+  workflow as a skill + slash commands + approval hooks, escalation as Haiku/Sonnet/Opus subagents,
+  Gemini via a repo MCP server with its key as a network secret — the owner wants to use Pro, and
+  extending Claude Code is ordinary use, while a custom app needs API keys — rejected (if approved):
+  the custom FastAPI app calling the Claude API. Trade-offs: shared Pro limits, softer approval gate,
+  no custom voice UI. See proposal-claude-code-native.md.
+- 2026-11-02 — **Owner chose the Claude-Code-native direction** (chat, 20:38): the live conversation
+  uses Claude Code's own interface (claude.ai/code, Claude app) on the Pro plan; wake page and Red One
+  side pages (status, reports, read-aloud) remain ours. Owner "not exceptionally happy" about losing a
+  custom chat interface; switching the conversation to our own UI later with an API key stays open.
 - 2026-11-02 — Runtime dependencies pinned exactly (fastapi 0.162.0, uvicorn 0.54.0), bumped only in
   PRs; ruff's bandit `S` rules on from day one; API docs pages disabled (they load CDN scripts the
   CSP forbids) — supply-chain and attack-surface reduction — rejected: version ranges, `uvicorn[standard]`.
 - 2026-11-02 — Security CI is a separate workflow living only on `project/red-one`
   (gitleaks-action, free for personal accounts; pip-audit) — keeps `main`'s shared CI untouched —
   rejected: editing the repo-wide ci.yml.
+- 2026-11-05 — Upgrade pip and setuptools (>=84.1) before installing, everywhere, and keep auditing
+  the whole venv including build tools — the venv's bundled setuptools had known advisories —
+  rejected: auditing only runtime dependencies (would hide toolchain vulnerabilities), or ignoring
+  the advisory IDs. Licence metadata switched to the SPDX form `LicenseRef-Proprietary` (the
+  table form is deprecated and stops building in Feb 2027).
