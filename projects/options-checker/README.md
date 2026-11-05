@@ -9,7 +9,7 @@ See [docs/design.md](docs/design.md) and the
 ## Status
 | Tool | Status |
 | --- | --- |
-| Black-Scholes core | planned (S2) |
+| Black-Scholes core (`occheck.pricing`) | done (S2) |
 | Trade-log auditor | planned (S3–S6) |
 | Risk-of-ruin calculator | planned (S7) |
 | Premium-selling backtester | planned (S8–S10) |
