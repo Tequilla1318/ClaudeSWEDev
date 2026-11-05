@@ -7,12 +7,12 @@ Feedback last read: 2026-11-05 (PRs #45–#72, all comments)
   https://tequilla1318.github.io/ClaudeSWEDev/options-checker/ (Pages deploy from main works).
 - Owner feedback round 1 → epic #79, stories #73–#78 (S12–S17).
 - S12 (#73, PR #80) in review: wheel cost-basis view (`roundtrips.wheel_view`), report default.
-- **S13 (#74) in review:** every report cutoff lives in `audit.Thresholds` and is adjustable on
-  audit.html (plus a wheel/broker toggle); `occheck serve` defaults to port 3000.
+- S13 (#74, PR #82) in review: all cutoffs in `audit.Thresholds`, adjustable on audit.html; port 3000.
+- **S14 (#75) in review:** docs/research/thresholds.md (basis + sources per threshold; test enforces
+  coverage); disposition flag 1.5x / watch 1.2x; Carr & Wu source for 0.9 x VIX.
 - Feedback-round PRs are stacked again (each branch cut from the previous).
 
 ## What's next
-- S14 (#75): research sources for every threshold and for 0.9 x VIX.
 - S15 (#76) skew model; S16 (#77) Cboe delayed-quote prefill (localhost); S17 (#78) yfinance (localhost).
 
 ## Owner answers (2026-11-05)

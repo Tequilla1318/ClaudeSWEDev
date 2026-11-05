@@ -30,6 +30,8 @@
       </div>
       <details id="settings">
         <summary>Adjust what gets flagged</summary>
+        <p class="privacy">Where each default comes from:
+          <a href="https://github.com/Tequilla1318/ClaudeSWEDev/blob/main/projects/options-checker/docs/research/thresholds.md" rel="noopener">the research behind the thresholds</a>.</p>
         <fieldset class="choice">
           <legend>How to count assigned options</legend>
           <label><input type="radio" name="convention" value="wheel" checked> Wheel view: premium adjusts the shares' cost</label>
@@ -53,7 +55,8 @@
           <label class="field">flag above %<input type="number" data-th="commission_flag" data-pct value="25" min="0" step="1"></label>
         </div>
         <div class="row">
-          <label class="field">Losers held longer: flag above x<input type="number" data-th="disposition_ratio_flag" value="1.2" min="0" step="0.05"></label>
+          <label class="field">Losers held longer: watch above x<input type="number" data-th="disposition_ratio_watch" value="1.2" min="0" step="0.05"></label>
+          <label class="field">flag at x<input type="number" data-th="disposition_ratio_flag" value="1.5" min="0" step="0.05"></label>
           <label class="field">High win rate, %<input type="number" data-th="high_win_rate" data-pct value="60" min="0" max="100" step="1"></label>
         </div>
         <div class="row">
