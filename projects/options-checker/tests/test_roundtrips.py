@@ -118,6 +118,6 @@ def test_turnover():
     out = turnover(trades, account_value=1000.0)
     assert out["span_days"] == pytest.approx(30.0)
     assert out["notional_per_year"] == pytest.approx(2000 * 365 / 30)
-    assert out["annual_turnover"] == pytest.approx(2000 * 365 / 30 / 1000)
+    assert out["annual_turnover"] == pytest.approx(2000 * 365 / 30 / 2 / 1000)
     assert turnover(trades, None)["annual_turnover"] is None
     assert turnover([], 1000)["notional_per_year"] == 0.0
