@@ -94,8 +94,26 @@ def test_report_shape_and_json(fixture_report):
         assert m["research"]["url"].startswith("https://")
         assert m["display"] and m["explanation"]
     json.dumps(r, default=str)  # serializable for the web page
-    assert r["summary"]["round_trips"] == 6
+    assert r["summary"]["round_trips"] == 5  # wheel view: SPY put folded into the shares
+    assert r["summary"]["convention"] == "wheel"
     assert r["summary"]["net_pnl"] == pytest.approx(1442.45)
+
+
+def test_broker_and_wheel_views_agree_on_totals():
+    text = (FIXTURES / "flex_basic.csv").read_text()
+    wheel = report_from_csv(text, convention="wheel")
+    broker = report_from_csv(text, convention="broker")
+    assert broker["summary"]["round_trips"] == 6
+    assert wheel["summary"]["net_pnl"] == pytest.approx(broker["summary"]["net_pnl"])
+    with pytest.raises(ValueError):
+        report_from_csv(text, convention="other")
+
+
+def test_threshold_overrides_by_name():
+    text = (FIXTURES / "flex_basic.csv").read_text()
+    r = report_from_csv(text, thresholds={"lottery_max_premium": 0.25})
+    lot = next(m for m in r["metrics"] if m["id"] == "lottery")
+    assert lot["data"]["lottery_n"] == 0  # the TSLA calls opened at 0.40, above the 0.25 cut
     assert "not financial advice" in r["disclaimer"]
 
 

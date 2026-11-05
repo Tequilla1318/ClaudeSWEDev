@@ -1,29 +1,26 @@
 # options-checker — context
 
-Feedback last read: 2026-11-05
+Feedback last read: 2026-11-05 (PRs #45–#72, all comments)
 
 ## State
-- Design approved by the owner in chat on 2026-11-05 ("Go for it. Build it"); design PR #45.
-- Backlog: epics #48 (M1), #52 (M2), #55 (M3), #59 (M4), #61 (M5); stories #46–#60.
-- S1 (#46, PR #62) in review: package scaffold, CLI with `--version`.
-- S2 (#47, PR #63) in review: `occheck.pricing` — Black-Scholes-Merton price, Greeks, implied vol.
-- S3 (#49, PR #64) in review: `occheck.trades.Trade` model + `occheck.brokers.ibkr_flex` parser.
-- S4 (#50, PR #65) in review: `occheck.roundtrips` FIFO matcher; `occheck.audit` cost summary + turnover.
-- S5 (#51, PR #66) in review: bias metrics, report card, `occheck audit <csv>`.
-- S6 (#53, PR #67) in review: static site (`src/occheck/web/`), `occheck serve` / `build-site`,
-  Pages workflow `.github/workflows/options-checker-pages.yml`, browser smoke test `webtest/`.
-- S7 (#54, PR #68) in review: `occheck.risk` Monte Carlo + Kelly; `risk.html` fan chart.
-- S8 (#56, PR #69) in review: `occheck.data` loaders, `occheck download-data`, `/data/<KIND>.csv`
-  in `occheck serve`. Drag-in UI ships with the backtester page (S10).
-- S9 (#57, PR #70) in review: `occheck.backtest.putwrite` + `scripts/validate_put.py`; gate passes.
-- S10 (#58, PR #71) in review: `occheck.backtest.rules`, stress table, `backtest.html`.
-- **S11 (#60) in review:** `occheck.pretrade` + `checker.html` (manual entry only). All v1 stories built.
-- Story PRs are **stacked** (each branch cut from the previous); merge in order, starting with #45.
+- v1 (design #45, stories S1–S11, PRs #62–#72) **merged** on 2026-11-05. Site live at
+  https://tequilla1318.github.io/ClaudeSWEDev/options-checker/ (Pages deploy from main works).
+- Owner feedback round 1 → epic #79, stories #73–#78 (S12–S17).
+- **S12 (#73) in review:** wheel cost-basis view (`roundtrips.wheel_view`), now the report default;
+  `--convention broker` keeps the statement's split.
+- Feedback-round PRs are stacked again (each branch cut from the previous).
 
 ## What's next
-- Owner reviews and merges PRs #45, #62–#72 in order; enable GitHub Pages.
-- Backlog candidates: skew model for OTM backtests; Odean PGR/PLR in localhost mode; other
-  brokers' CSVs; backtest honesty checker; wheel-style cost-basis view in the auditor.
+- S13 (#74): threshold inputs and a wheel/broker toggle on audit.html; `occheck serve` on port 3000.
+- S14 (#75): research sources for every threshold and for 0.9 x VIX.
+- S15 (#76) skew model; S16 (#77) Cboe delayed-quote prefill (localhost); S17 (#78) yfinance (localhost).
+
+## Owner answers (2026-11-05)
+- Pyodide approved. No real IBKR export will be shared (synthetic fixtures stay).
+- Wheel cost-basis view wanted. Thresholds must be adjustable and backed by research with sources.
+- 0.9 x VIX accepted if research supports it, with sources. Price-only SPX benchmark OK.
+- Skew-model story: yes. Cboe delayed-quote prefill in localhost: yes. yfinance suggested.
+- Localhost should use port 3000.
 
 ## Key facts for future sessions
 - Goal: "shovels" — tools that expose where traders lose money (costs, IV overpayment, timing,
