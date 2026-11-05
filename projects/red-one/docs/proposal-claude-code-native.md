@@ -68,8 +68,9 @@ GitHub (PRs; the owner merges)
 - **Conversations live on claude.ai** (Anthropic's servers) rather than in your codespace.
 
 ## What happens to existing work
-- PR #35 (FastAPI scaffold): put on hold. If this proposal is approved, close it; the security CI
-  workflow and ruff/pytest setup get reused for the MCP server and hooks.
+- PR #35 (FastAPI scaffold): **merged by the owner on 2026-11-05.** The FastAPI app gets removed or
+  repurposed (e.g. as the mission-control page) in the first new story; the security CI workflow
+  and ruff/pytest setup get reused for the MCP server and hooks.
 - Issues #27–#33: closed and replaced by new stories for the list above.
 - Roadmap M2–M9 get re-cut around this; the multi-model team idea still works via MCP servers.
 

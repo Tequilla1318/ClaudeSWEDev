@@ -1,6 +1,6 @@
 # Context — red-one ("Project Red One")
 
-Feedback last read: 2026-11-02T01:27Z (#34 merged: escalation rules approved; owner asked to find a way to use the Pro plan → proposal PR)
+Feedback last read: 2026-11-05T14:20Z (owner merged #35 and synced #36 with project/red-one; no new comments. Security CI failed on pip-audit → fixed in #81)
 
 ## Branch model
 **Side project: lives on `project/red-one`; never merged to `main`** (owner, 2026-11-01).
@@ -10,13 +10,19 @@ The project was first named `voice-agent-room` (PR #24). The owner is deleting t
 `project/voice-agent-room` and `docs/voice-agent-room-context`. Don't use them.
 
 ## Current state
-- **M1 design approved** ([`design.md`](design.md)). Building M1 in stub mode.
-- **Story 1 (#27) in review:** package skeleton (`src/red_one`), FastAPI app with security headers
-  and a health route reporting stub/live mode, `make run` on 127.0.0.1:8765, Codespaces dev
-  container `.devcontainer/red-one/`, security CI workflow `.github/workflows/red-one-security.yml`
-  (gitleaks + pip-audit, project branch only). Not yet verified inside a real codespace. Requirements come from the kickoff chat with Claude (below) and the
-  owner's ChatGPT conversation ([`chatgpt-kickoff-notes.md`](chatgpt-kickoff-notes.md)).
-  Milestones: [`roadmap.md`](roadmap.md). Next: the M1 design doc (`design.md`).
+- **Direction: Red One runs inside Claude Code on the Pro plan** (owner, 2026-11-02), per
+  [`proposal-claude-code-native.md`](proposal-claude-code-native.md) (PR #36). This supersedes the
+  custom-app architecture in [`design.md`](design.md), which stays as history.
+- **Merged on `project/red-one`:** story 1 scaffold (#35): `src/red_one` FastAPI app with security
+  headers and a stub/live health route, Codespaces dev container `.devcontainer/red-one/`, security
+  CI workflow `.github/workflows/red-one-security.yml` (gitleaks + pip-audit, project branch only).
+  Under the new direction the FastAPI app gets removed or repurposed; the CI, lint and test setup
+  is reused for the MCP server and hooks.
+- **CI fix in review (#81):** pip-audit failed because Python 3.11's venv bundles a vulnerable
+  setuptools (see Known issues).
+- Requirements: kickoff chat with Claude (below) and the owner's ChatGPT conversation
+  ([`chatgpt-kickoff-notes.md`](chatgpt-kickoff-notes.md)). Milestones: [`roadmap.md`](roadmap.md)
+  (to be re-cut for the new direction).
 - Owner's instruction: **start with the smallest possible thing and expand later; avoid feature creep.**
 
 ## The idea in one paragraph
@@ -107,10 +113,8 @@ when needed then returning to work, with Claude moderating (see roadmap.md). Tod
   main account (or an org it owns), so the main account is never connected to Claude.
 
 ## Next
-1. Owner chose the Claude-Code-native direction (2026-11-02). Still open: where Red One sessions live
-   (separate repo vs branch) and the Gemini network secret.
-2. If yes: close #35 and #27–#33, re-cut roadmap and stories around the proposal.
-   If no: continue M1 as designed in stub mode, starting with #35.
-1. M1 epic #33; stories #27–#32, worked in order (design.md §7), one PR each.
-2. After #27 merges: owner opens the codespace once (README steps) to confirm it works; then story 2 (#28).
-3. Owner, whenever ready: add `ANTHROPIC_API_KEY` as a Codespaces secret to turn off stub mode.
+1. Owner merges #81 (CI fix) and #36 (proposal + chosen direction), in either order.
+2. Owner answers #36's open questions: where Red One sessions live (separate repo, recommended, vs a
+   dedicated branch) and adding the Gemini key as a cloud-environment network secret.
+3. Then: close issues #27–#33, re-cut `roadmap.md` and the M1 stories for the Claude-Code-native
+   build, and decide whether to delete or repurpose the merged FastAPI scaffold.
