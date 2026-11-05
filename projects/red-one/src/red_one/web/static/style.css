@@ -1,0 +1,4 @@
+:root { color-scheme: light dark; }
+body { margin: 0; font-family: system-ui, sans-serif; background: Canvas; color: CanvasText; }
+main { max-width: 40rem; margin: 4rem auto; padding: 0 1rem; }
+h1 { letter-spacing: 0.05em; }

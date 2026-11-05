@@ -10,8 +10,11 @@ The project was first named `voice-agent-room` (PR #24). The owner is deleting t
 `project/voice-agent-room` and `docs/voice-agent-room-context`. Don't use them.
 
 ## Current state
-- **M1 design approved** ([`design.md`](design.md)). Building M1 in stub mode; story issues
-  created (see Next). No code merged yet. Requirements come from the kickoff chat with Claude (below) and the
+- **M1 design approved** ([`design.md`](design.md)). Building M1 in stub mode.
+- **Story 1 (#27) in review:** package skeleton (`src/red_one`), FastAPI app with security headers
+  and a health route reporting stub/live mode, `make run` on 127.0.0.1:8765, Codespaces dev
+  container `.devcontainer/red-one/`, security CI workflow `.github/workflows/red-one-security.yml`
+  (gitleaks + pip-audit, project branch only). Not yet verified inside a real codespace. Requirements come from the kickoff chat with Claude (below) and the
   owner's ChatGPT conversation ([`chatgpt-kickoff-notes.md`](chatgpt-kickoff-notes.md)).
   Milestones: [`roadmap.md`](roadmap.md). Next: the M1 design doc (`design.md`).
 - Owner's instruction: **start with the smallest possible thing and expand later; avoid feature creep.**
@@ -84,6 +87,9 @@ A large multi-model "engineering team" room, each member with its own voice and 
 when needed then returning to work, with Claude moderating (see roadmap.md). Today: Claude + Gemini.
 
 ## Known issues / gotchas
+- Starlette warns that `TestClient` with `httpx` is deprecated (wants `httpx2`); harmless for now,
+  revisit when bumping deps.
+- Never `pkill -f red_one` from a shell whose own command line contains "red_one"; it kills the shell.
 - Cloud VMs have **no microphone or speaker**; voice is tested with recorded/synthesised audio.
 - Claude never touches the owner's Mac; the owner runs the arming command themselves.
 - `gh pr create` fails (GraphQL blocked); use the REST API via `gh api` (see CLAUDE.md).
@@ -101,3 +107,6 @@ when needed then returning to work, with Claude moderating (see roadmap.md). Tod
    (separate repo vs branch) and the Gemini network secret.
 2. If yes: close #35 and #27–#33, re-cut roadmap and stories around the proposal.
    If no: continue M1 as designed in stub mode, starting with #35.
+1. M1 epic #33; stories #27–#32, worked in order (design.md §7), one PR each.
+2. After #27 merges: owner opens the codespace once (README steps) to confirm it works; then story 2 (#28).
+3. Owner, whenever ready: add `ANTHROPIC_API_KEY` as a Codespaces secret to turn off stub mode.

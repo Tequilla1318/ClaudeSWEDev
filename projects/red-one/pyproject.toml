@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "red-one"
+version = "0.0.1"
+description = "Voice-activated, human-in-the-loop AI team. M1: a careful text chat with Claude."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Proprietary (not yet licensed for reuse)" }
+# Kept deliberately small (supply-chain risk). Pinned to known-good versions; bump in a PR.
+dependencies = [
+    "fastapi==0.162.0",
+    "uvicorn==0.54.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "httpx==0.28.1",
+    "ruff>=0.6",
+]
+
+[project.scripts]
+red-one = "red_one.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+red_one = ["web/static/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["live: calls a real model API; needs a key and costs money (never run in CI)"]
+addopts = "-m 'not live'"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+# S = flake8-bandit security checks, on from day one.
+select = ["E", "F", "I", "B", "UP", "S"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]

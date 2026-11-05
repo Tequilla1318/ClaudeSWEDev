@@ -127,3 +127,9 @@ Entries marked "(proposed)" are Claude's suggestions awaiting the owner's approv
   uses Claude Code's own interface (claude.ai/code, Claude app) on the Pro plan; wake page and Red One
   side pages (status, reports, read-aloud) remain ours. Owner "not exceptionally happy" about losing a
   custom chat interface; switching the conversation to our own UI later with an API key stays open.
+- 2026-11-02 — Runtime dependencies pinned exactly (fastapi 0.162.0, uvicorn 0.54.0), bumped only in
+  PRs; ruff's bandit `S` rules on from day one; API docs pages disabled (they load CDN scripts the
+  CSP forbids) — supply-chain and attack-surface reduction — rejected: version ranges, `uvicorn[standard]`.
+- 2026-11-02 — Security CI is a separate workflow living only on `project/red-one`
+  (gitleaks-action, free for personal accounts; pip-audit) — keeps `main`'s shared CI untouched —
+  rejected: editing the repo-wide ci.yml.
