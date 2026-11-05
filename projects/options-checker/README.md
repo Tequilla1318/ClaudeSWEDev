@@ -10,7 +10,7 @@ See [docs/design.md](docs/design.md) and the
 | Tool | Status |
 | --- | --- |
 | Black-Scholes core (`occheck.pricing`) | done (S2) |
-| Trade-log auditor | IBKR Flex parser done (S3); matching, metrics, web next |
+| Trade-log auditor | CLI works: `occheck audit trades.csv --account-value 50000` (S3–S5); web page next (S6) |
 | Risk-of-ruin calculator | planned (S7) |
 | Premium-selling backtester | planned (S8–S10) |
 | Pre-trade checker | planned (S11) |

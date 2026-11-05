@@ -8,11 +8,13 @@ Feedback last read: 2026-11-05
 - S1 (#46, PR #62) in review: package scaffold, CLI with `--version`.
 - S2 (#47, PR #63) in review: `occheck.pricing` — Black-Scholes-Merton price, Greeks, implied vol.
 - S3 (#49, PR #64) in review: `occheck.trades.Trade` model + `occheck.brokers.ibkr_flex` parser.
-- **S4 (#50) in review:** `occheck.roundtrips` FIFO matcher; `occheck.audit` cost summary + turnover.
+- S4 (#50, PR #65) in review: `occheck.roundtrips` FIFO matcher; `occheck.audit` cost summary + turnover.
+- **S5 (#51) in review:** bias metrics in `occheck.audit`, report card in `occheck.report`,
+  `occheck audit <csv> [--account-value N] [--json]`.
 - Story PRs are **stacked** (each branch cut from the previous); merge in order, starting with #45.
 
 ## What's next
-- S5 (#51): bias metrics and JSON report card.
+- S6 (#53): static site + Pyodide auditor page, Pages workflow, `occheck serve`.
 
 ## Key facts for future sessions
 - Goal: "shovels" — tools that expose where traders lose money (costs, IV overpayment, timing,
