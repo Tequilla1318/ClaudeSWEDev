@@ -10,11 +10,18 @@ if (process.env.HTTPS_PROXY) {
   args.push(`--proxy-server=${process.env.HTTPS_PROXY}`, "--proxy-bypass-list=127.0.0.1;localhost",
     "--ignore-certificate-errors");
 }
-const browser = await puppeteer.launch({
-  executablePath: process.env.CHROME ?? "/usr/bin/google-chrome",
-  headless: true,
-  args,
-});
+// CI runners sometimes take longer than puppeteer's default 30 s to start Chrome; allow
+// 90 s and retry once before failing.
+async function launch() {
+  const opts = { executablePath: process.env.CHROME ?? "/usr/bin/google-chrome", headless: true, args, timeout: 90_000 };
+  try {
+    return await puppeteer.launch(opts);
+  } catch (err) {
+    console.error("Chrome did not start, retrying once:", err.message);
+    return puppeteer.launch(opts);
+  }
+}
+const browser = await launch();
 const fail = (msg) => { console.error("SMOKE FAIL:", msg); process.exitCode = 1; };
 try {
   const page = await browser.newPage();
