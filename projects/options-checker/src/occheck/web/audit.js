@@ -19,7 +19,7 @@ function render(report) {
   const money = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   $("summary").replaceChildren(
     el("span", "net", money(s.net_pnl)),
-    document.createTextNode(`net realized P&L from ${s.round_trips} closed trades (${s.trades} executions)`),
+    document.createTextNode(`net realized P&L from ${s.round_trips} closed trades (${s.trades} executions, ${s.convention} view)`),
   );
   $("ledger").replaceChildren(...report.metrics.map((m) => {
     const li = el("li");
@@ -40,20 +40,38 @@ function render(report) {
   $("report").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
 }
 
+const DEFAULTS = Object.fromEntries([...document.querySelectorAll("[data-th]")].map((i) => [i.dataset.th, i.value]));
+let lastText = null;
+
+function settings() {
+  const th = {};
+  for (const input of document.querySelectorAll("[data-th]")) {
+    const v = parseFloat(input.value);
+    if (!Number.isFinite(v) || v < 0) continue; // blank or invalid: keep the default
+    const key = input.dataset.th;
+    th[key] = "pct" in input.dataset ? v / 100 : key.endsWith("_dte") || key === "min_samples" ? Math.round(v) : v;
+  }
+  const convention = document.querySelector('input[name="convention"]:checked').value;
+  return { th, convention };
+}
+
 async function run(text) {
+  lastText = text;
   $("run").disabled = true;
   try {
     const py = await loadOccheck(status);
     const acct = parseFloat($("account").value);
     py.globals.set("csv_text", text);
     py.globals.set("account_value", Number.isFinite(acct) && acct > 0 ? acct : null);
+    py.globals.set("settings_json", JSON.stringify(settings()));
     const out = py.runPython(`
 import json
 from occheck.brokers.ibkr_flex import FlexFormatError
 from occheck.report import report_from_csv
 try:
-    _r = json.dumps({"ok": report_from_csv(csv_text, account_value)}, default=str)
-except FlexFormatError as exc:
+    _s = json.loads(settings_json)
+    _r = json.dumps({"ok": report_from_csv(csv_text, account_value, _s["convention"], _s["th"])}, default=str)
+except (FlexFormatError, TypeError, ValueError) as exc:
     _r = json.dumps({"error": str(exc)})
 _r`);
     const res = JSON.parse(out);
@@ -75,6 +93,12 @@ async function runFile(file) {
   run(await file.text());
 }
 
+$("settings").addEventListener("change", () => { if (lastText) run(lastText); });
+$("reset").addEventListener("click", () => {
+  for (const input of document.querySelectorAll("[data-th]")) input.value = DEFAULTS[input.dataset.th];
+  document.querySelector('input[name="convention"][value="wheel"]').checked = true;
+  if (lastText) run(lastText);
+});
 $("form").addEventListener("submit", (e) => { e.preventDefault(); runFile($("file").files[0]); });
 $("sample").addEventListener("click", async () => run(await (await fetch("sample-trades.csv")).text()));
 const form = $("form");

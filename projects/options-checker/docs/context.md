@@ -6,12 +6,12 @@ Feedback last read: 2026-11-05 (PRs #45–#72, all comments)
 - v1 (design #45, stories S1–S11, PRs #62–#72) **merged** on 2026-11-05. Site live at
   https://tequilla1318.github.io/ClaudeSWEDev/options-checker/ (Pages deploy from main works).
 - Owner feedback round 1 → epic #79, stories #73–#78 (S12–S17).
-- **S12 (#73) in review:** wheel cost-basis view (`roundtrips.wheel_view`), now the report default;
-  `--convention broker` keeps the statement's split.
+- S12 (#73, PR #80) in review: wheel cost-basis view (`roundtrips.wheel_view`), report default.
+- **S13 (#74) in review:** every report cutoff lives in `audit.Thresholds` and is adjustable on
+  audit.html (plus a wheel/broker toggle); `occheck serve` defaults to port 3000.
 - Feedback-round PRs are stacked again (each branch cut from the previous).
 
 ## What's next
-- S13 (#74): threshold inputs and a wheel/broker toggle on audit.html; `occheck serve` on port 3000.
 - S14 (#75): research sources for every threshold and for 0.9 x VIX.
 - S15 (#76) skew model; S16 (#77) Cboe delayed-quote prefill (localhost); S17 (#78) yfinance (localhost).
 
