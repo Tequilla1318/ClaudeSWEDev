@@ -55,6 +55,10 @@ python -m mergerarb.backtest.export results.json dash/          # CSVs for the r
 - `backtest/bench.py` — SPY and XIC buy-and-hold with dividend withholding, dividend tax and
   capital-gains tax on the final sale.
 - Cross-check: MERFX, ARBFX and MNA total returns over the same window.
+- `backtest/momentum.py` — long-short 12-1 momentum on point-in-time S&P 500 members
+  (github.com/fja05680/sp500): top and bottom 10% equal-weighted, each side 100% of equity,
+  monthly. Checked against the Fama-French momentum factor (`--members`, `--umd` on the runner).
+  Yahoo has no prices for delisted or renamed members (about 17% of members on average).
 - Rates: 2026 Ontario combined (Richter), applied to all years; 50% inclusion.
 
 Biases to keep in mind: positions are carried at cost (acquired companies' daily prices are gone),

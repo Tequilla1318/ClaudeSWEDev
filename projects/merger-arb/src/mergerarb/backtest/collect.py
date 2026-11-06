@@ -363,7 +363,10 @@ def process_group(f: Fetcher, group: list[Hit], tickers: list[dict], today: date
         elif d.unaffected_price:
             d.exit_price_break, d.exit_basis = d.unaffected_price, "unaffected price from filing"
         else:
-            d.exit_price_break, d.exit_basis = round(0.7 * d.entry_price, 4), "70% of entry (no price)"
+            d.exit_price_break, d.exit_basis = (
+                round(0.7 * d.entry_price, 4),
+                "70% of entry (no price)",
+            )
     elif d.outcome == "open":
         series = yahoo_closes(f, d.ticker) if d.ticker else None
         if series:

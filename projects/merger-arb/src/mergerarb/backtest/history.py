@@ -163,7 +163,11 @@ def deal_outcome(
     )
 
     def completion(f: str, it: str) -> bool:
-        return f in COMPLETION_FORMS or (f.startswith("8-K") and "5.01" in it)
+        # A report that terminates agreements (1.02) and completes an acquisition (2.01)
+        # in one filing is the target's closing 8-K.
+        return f in COMPLETION_FORMS or (
+            f.startswith("8-K") and ("5.01" in it or ("2.01" in it and "1.02" in it))
+        )
 
     for i, (d, f, it) in enumerate(events):
         if completion(f, it):

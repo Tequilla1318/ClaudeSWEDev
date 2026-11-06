@@ -15,7 +15,10 @@ from mergerarb.backtest.costs import BORROW_FEE, CASH_SPREAD, IbkrFixed
 def _kind(key: str) -> tuple[str, str, str, str]:
     """(strategy, account, bracket, tax_basis) for a scenario key."""
     parts = key.split("_")
-    strategy = {"arb": "Merger arb", "spy": "S&P 500", "xic": "TSX", "fund": "Arb fund"}[parts[0]]
+    strategy = {"arb": "Merger arb", "spy": "S&P 500", "xic": "TSX", "fund": "Arb fund",
+                "mom": "Momentum"}[parts[0]]
+    if key == "fund_umd":
+        strategy = "Momentum factor"
     account = "TFSA" if "tfsa" in parts or parts[0] == "fund" else "Non-registered"
     if parts[0] == "fund":
         account = "Before tax"
@@ -66,7 +69,7 @@ def write(results: dict, out: Path) -> list[Path]:
                 round(
                     v.get("taxes_cad", v.get("sale_tax_cad", 0) + v.get("dividend_tax_cad", 0)), 2
                 ),
-                "variant" if any(s in k for s in ("hedged", "size", "pretax")) else "main",
+                "variant" if any(s in k for s in ("hedged", "size", "pretax_all")) else "main",
             ]
         )
     dump(
@@ -153,6 +156,24 @@ def write(results: dict, out: Path) -> list[Path]:
             ],
         ]
     dump("assumptions.csv", ["item", "value", "source"], arows)
+
+    mo = results.get("momentum")
+    if mo:
+        pre = sc.get("mom_pretax", {})
+        mrows = [
+            ["Index members with usable prices, on average", round(pre.get("coverage_avg", 0), 4)],
+            ["Index members with usable prices, lowest month", round(pre.get("coverage_min", 0), 4)],
+            ["Traded each month, as a share of equity", round(pre.get("turnover", 0), 4)],
+            ["Correlation with the Fama-French momentum factor", round(mo.get("correlation_with_ff", 0), 4)],
+            ["Months compared with the Fama-French factor", mo.get("months_compared", 0)],
+        ]
+        dump("momentum_stats.csv", ["item", "value"], mrows)
+        arows += [
+            ["Momentum: share of index bought and shorted (each side)", 0.10, "Assumption"],
+            ["Momentum: each side as a multiple of equity", 1.0, "Assumption"],
+        ]
+        # assumptions were already written; rewrite with the momentum rows added
+        dump("assumptions.csv", ["item", "value", "source"], arows)
 
     wrows = []
     for k in ("arb_nonreg_cg_100k",):

@@ -85,6 +85,62 @@ def monthly(nav: list[tuple[date, float]]) -> list[list]:
     return [[d.isoformat(), round(v, 2)] for d, v in out.values()]
 
 
+def run_momentum(a, f, fxd, flat_fx, capital, record, out) -> None:
+    """Add the long-short momentum scenarios and the Fama-French cross-check."""
+    from mergerarb.backtest.momentum import (
+        MomConfig,
+        load_prices,
+        month_ends,
+        parse_members,
+        parse_umd,
+        simulate_momentum,
+    )
+
+    members = parse_members(a.members.read_text())
+    prices = load_prices(f, members, a.start, a.end, log=lambda m: None)
+
+    def mom(key: str, label: str, fx_series=None, **kw) -> None:
+        res = simulate_momentum(members, prices, fx_series or fxd,
+                                MomConfig(start=a.start, end=a.end, **kw))
+        cov = [c for _, c in res.coverage]
+        record(key, label, res.nav_cad, {
+            "taxes_cad": res.taxes_cad,
+            "fees_usd": res.fees_usd,
+            "turnover": res.turnover,
+            "coverage_avg": statistics.mean(cov) if cov else 0,
+            "coverage_min": min(cov) if cov else 0,
+            "by_year_tax": {str(y): v for y, v in res.years.items()},
+        })
+        return res
+
+    pre = mom("mom_pretax", "Momentum long-short, before tax", account="pretax")
+    mom("mom_pretax_hedged", "Momentum long-short, before tax, currency held constant",
+        fx_series=flat_fx, account="pretax")
+    for k, b in BRACKETS.items():
+        mom(f"mom_nonreg_cg_{k}", f"Momentum long-short, non-registered, {b.name}",
+            account="nonreg", bracket=b)
+        mom(f"mom_nonreg_biz_{k}", f"Momentum taxed as business income, {b.name}",
+            account="nonreg", bracket=b, regime="business")
+    out["momentum"] = {
+        "coverage": [[d.isoformat(), round(c, 4)] for d, c in pre.coverage],
+        "leg_returns": [[d.isoformat(), round(r, 6)] for d, r in pre.leg_returns],
+    }
+    if a.umd:
+        umd = parse_umd(a.umd.read_bytes())
+        nav, v = [], capital / fxd.at(a.start)
+        for d in month_ends(a.start, a.end):
+            if d > a.start and (d.year, d.month) in umd:
+                v *= 1 + umd[(d.year, d.month)]
+            nav.append((d, v * fxd.at(d)))
+        record("fund_umd", "Fama-French momentum factor, before costs and tax", nav)
+        ours = {d[:7]: r for d, r in out["momentum"]["leg_returns"]}
+        pairs = [(ours[f"{y}-{m:02d}"], r) for (y, m), r in umd.items() if f"{y}-{m:02d}" in ours]
+        if len(pairs) > 12:
+            xs, ys = zip(*pairs, strict=True)
+            out["momentum"]["correlation_with_ff"] = statistics.correlation(xs, ys)
+            out["momentum"]["months_compared"] = len(pairs)
+
+
 def main(argv: list[str] | None = None) -> int:
     """Command-line entry point."""
     ap = argparse.ArgumentParser()
@@ -93,6 +149,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--cache", type=Path, default=Path.home() / ".cache" / "mergerarb-hist")
     ap.add_argument("--start", type=date.fromisoformat, default=date(2011, 11, 1))
     ap.add_argument("--end", type=date.fromisoformat, default=date(2026, 10, 30))
+    ap.add_argument("--members", type=Path, help="S&P 500 point-in-time membership CSV")
+    ap.add_argument("--umd", type=Path, help="Fama-French momentum factor zip")
     a = ap.parse_args(argv)
     f = Fetcher(a.cache)
     t0 = time.time()
@@ -235,6 +293,9 @@ def main(argv: list[str] | None = None) -> int:
             continue
         nav = total_return_series(data["adj"], fxd, a.start, a.end, capital)
         record(f"fund_{sym.lower()}", f"{label}, before tax", nav)
+
+    if a.members:
+        run_momentum(a, f, fxd, flat_fx, capital, record, out)
 
     a.out.write_text(json.dumps(out, indent=1, default=str))
     print(f"wrote {a.out} in {time.time() - t0:.0f}s")

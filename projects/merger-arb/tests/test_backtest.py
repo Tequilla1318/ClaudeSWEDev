@@ -226,3 +226,8 @@ def test_outcome_break_and_open():
 def test_late_termination_is_not_this_deals_break():
     oc = deal_outcome(["8-K"], [date(2022, 1, 1)], ["1.02"], date(2020, 1, 1))
     assert oc.status == "open"
+
+
+def test_termination_with_completed_acquisition_is_a_closing():
+    oc = deal_outcome(["8-K"], [date(2020, 5, 1)], ["1.02,2.01,9.01"], date(2020, 1, 1))
+    assert oc.status == "closed"
