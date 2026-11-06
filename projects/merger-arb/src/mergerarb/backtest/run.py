@@ -100,27 +100,46 @@ def run_momentum(a, f, fxd, flat_fx, capital, record, out) -> None:
     prices = load_prices(f, members, a.start, a.end, log=lambda m: None)
 
     def mom(key: str, label: str, fx_series=None, **kw) -> None:
-        res = simulate_momentum(members, prices, fx_series or fxd,
-                                MomConfig(start=a.start, end=a.end, **kw))
+        res = simulate_momentum(
+            members, prices, fx_series or fxd, MomConfig(start=a.start, end=a.end, **kw)
+        )
         cov = [c for _, c in res.coverage]
-        record(key, label, res.nav_cad, {
-            "taxes_cad": res.taxes_cad,
-            "fees_usd": res.fees_usd,
-            "turnover": res.turnover,
-            "coverage_avg": statistics.mean(cov) if cov else 0,
-            "coverage_min": min(cov) if cov else 0,
-            "by_year_tax": {str(y): v for y, v in res.years.items()},
-        })
+        record(
+            key,
+            label,
+            res.nav_cad,
+            {
+                "taxes_cad": res.taxes_cad,
+                "fees_usd": res.fees_usd,
+                "turnover": res.turnover,
+                "coverage_avg": statistics.mean(cov) if cov else 0,
+                "coverage_min": min(cov) if cov else 0,
+                "by_year_tax": {str(y): v for y, v in res.years.items()},
+            },
+        )
         return res
 
     pre = mom("mom_pretax", "Momentum long-short, before tax", account="pretax")
-    mom("mom_pretax_hedged", "Momentum long-short, before tax, currency held constant",
-        fx_series=flat_fx, account="pretax")
+    mom(
+        "mom_pretax_hedged",
+        "Momentum long-short, before tax, currency held constant",
+        fx_series=flat_fx,
+        account="pretax",
+    )
     for k, b in BRACKETS.items():
-        mom(f"mom_nonreg_cg_{k}", f"Momentum long-short, non-registered, {b.name}",
-            account="nonreg", bracket=b)
-        mom(f"mom_nonreg_biz_{k}", f"Momentum taxed as business income, {b.name}",
-            account="nonreg", bracket=b, regime="business")
+        mom(
+            f"mom_nonreg_cg_{k}",
+            f"Momentum long-short, non-registered, {b.name}",
+            account="nonreg",
+            bracket=b,
+        )
+        mom(
+            f"mom_nonreg_biz_{k}",
+            f"Momentum taxed as business income, {b.name}",
+            account="nonreg",
+            bracket=b,
+            regime="business",
+        )
     out["momentum"] = {
         "coverage": [[d.isoformat(), round(c, 4)] for d, c in pre.coverage],
         "leg_returns": [[d.isoformat(), round(r, 6)] for d, r in pre.leg_returns],
