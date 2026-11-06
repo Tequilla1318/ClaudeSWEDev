@@ -165,7 +165,9 @@ def build_record(
     tickers: list[dict],
 ) -> DealRecord:
     """Combine a filing, its company history and extracted terms into a record (no prices)."""
-    terms = extract_terms(text, after=today)
+    terms = extract_terms(
+        text, after=today, target_name=clean_name(hit.names[0]) if hit.names else None
+    )
     rec = DealRecord(
         target=clean_name(hit.names[0]) if hit.names else f"CIK {hit.ciks[0]}",
         target_cik=hit.ciks[0],

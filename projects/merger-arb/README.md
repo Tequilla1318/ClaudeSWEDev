@@ -35,6 +35,32 @@ Anything ambiguous goes to a "needs review" list with the reason instead of bein
 no terms found, cash/stock elections, unmatched acquirer ticker, price far from the offer, stale
 prices. About a third of recent merger proxies land there (many are not acquisitions at all).
 
+## 15-year backtest (Ontario investor, IBKR)
+```
+export SEC_USER_AGENT="Your Name you@example.com"
+python -m mergerarb.backtest.collect --out deals_hist.jsonl     # ~40 min, cached
+python -m mergerarb.backtest.run --deals deals_hist.jsonl --out results.json
+python -m mergerarb.backtest.export results.json dash/          # CSVs for the results dashboard
+```
+- `backtest/collect.py` — every SC TO-T, PREM14A and DEFM14A from 2011-11 to 2026-10, grouped per
+  target. Entry price is the closing price the filing states for its latest practicable date
+  (never a live price, so selection doesn't depend on how the deal ended). Outcome from the
+  target's filing history: Form 25/15 or 8-K item 5.01 = closed; 8-K item 1.02 within 540 days
+  with no change in control = broke (exit at the market price after, else the filing's unaffected
+  price); a target with no ticker that stopped filing = closed; still listed a year on = broke.
+- `backtest/sim.py` — 5% of the book per deal, spread 0–40%, price ≥ $1; IBKR Fixed commissions,
+  SEC/FINRA fees, 0.05% slippage, 0.5% borrow on shorts; idle USD earns T-bill − 0.5% over $10k.
+  Tax in CAD: deal gains at trade-date FX, FX gains on the USD pool when converted (average
+  cost), capital losses carried forward; or everything as business income.
+- `backtest/bench.py` — SPY and XIC buy-and-hold with dividend withholding, dividend tax and
+  capital-gains tax on the final sale.
+- Cross-check: MERFX, ARBFX and MNA total returns over the same window.
+- Rates: 2026 Ontario combined (Richter), applied to all years; 50% inclusion.
+
+Biases to keep in mind: positions are carried at cost (acquired companies' daily prices are gone),
+so the book's drawdowns are understated; deals that broke before any proxy was filed are missing;
+higher competing bids and CVRs aren't credited; dividends on held targets are ignored.
+
 ## Key formulas
 - Deal value `V = cash + ratio × acquirer_price`; gross spread `S = V − target_price`.
 - Net spread adds carry: target dividends − ratio × acquirer dividends − borrow fee − trading costs.

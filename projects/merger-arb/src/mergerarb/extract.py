@@ -114,8 +114,28 @@ def find_cash(text: str) -> tuple[float | None, list[str]]:
     return _mode(vals), ev
 
 
-def find_ratio(text: str) -> tuple[float | None, str | None, list[str]]:
-    """Exchange ratio (acquirer shares per target share) and the acquirer's name."""
+def _words(s: str) -> set[str]:
+    return {w for w in re.findall(r"[a-z0-9]+", s.lower()) if len(w) > 2} - {
+        "inc",
+        "corp",
+        "the",
+        "company",
+        "holdings",
+        "group",
+        "ltd",
+        "plc",
+    }
+
+
+def find_ratio(
+    text: str, target_name: str | None = None
+) -> tuple[float | None, str | None, list[str]]:
+    """Exchange ratio (acquirer shares per target share) and the acquirer's name.
+
+    Matches naming the target itself ("15 shares of Heinz common stock") are
+    share counts, not exchange ratios, and are dropped.
+    """
+    target_words = _words(target_name) if target_name else set()
     found: list[tuple[float, str]] = []
     ev = []
     for m in _RATIO_PATTERN.finditer(text):
@@ -124,9 +144,10 @@ def find_ratio(text: str) -> tuple[float | None, str | None, list[str]]:
         if "for each" not in tail and "exchange ratio" not in tail + head and "each" not in head:
             continue
         r = float(m.group(1))
-        if not 0 < r <= 20:
+        name = m.group(2).strip()
+        if not 0 < r <= 20 or (target_words and _words(name) & target_words):
             continue
-        found.append((r, m.group(2).strip()))
+        found.append((r, name))
         if len(ev) < 2:
             ev.append(_snippet(text, m.start(), m.end()))
     if not found:
@@ -219,11 +240,11 @@ def find_expected_close(
     return None, None, []
 
 
-def extract_terms(text: str, after: date | None = None) -> Terms:
+def extract_terms(text: str, after: date | None = None, target_name: str | None = None) -> Terms:
     """Run every extractor over one filing's plain text."""
     t = Terms()
     t.cash, ev_c = find_cash(text)
-    t.ratio, t.acquirer_name, ev_r = find_ratio(text)
+    t.ratio, t.acquirer_name, ev_r = find_ratio(text, target_name)
     t.expected_close, t.close_basis, ev_d = find_expected_close(text, after)
     t.has_cvr = bool(re.search(r"contingent\s+value\s+right", text, re.IGNORECASE))
     t.has_ticking_fee = bool(re.search(r"ticking\s+fee", text, re.IGNORECASE))
