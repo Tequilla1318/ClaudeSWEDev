@@ -1,6 +1,6 @@
 # Context — red-one ("Project Red One")
 
-Feedback last read: 2026-11-05T14:20Z (owner merged #35 and synced #36 with project/red-one; no new comments. Security CI failed on pip-audit → fixed in #81)
+Feedback last read: 2026-11-08T04:00Z (owner answered #36 "Yes to all": direction approved, separate workspace repo, Gemini key as a network secret; #81 merged; no other comments)
 
 ## Branch model
 **Side project: lives on `project/red-one`; never merged to `main`** (owner, 2026-11-01).
@@ -13,13 +13,16 @@ The project was first named `voice-agent-room` (PR #24). The owner is deleting t
 - **Direction: Red One runs inside Claude Code on the Pro plan** (owner, 2026-11-02), per
   [`proposal-claude-code-native.md`](proposal-claude-code-native.md) (PR #36). This supersedes the
   custom-app architecture in [`design.md`](design.md), which stays as history.
+- **Voice amendment proposed** ([`voice-design.md`](voice-design.md), this PR): talk to Red One by
+  voice, **phone first**, at $0 by driving the unmodified `claude -p` CLI with the owner's own Pro
+  login from the Red One page in the codespace. Brings back spoken replies and our own UI that #36
+  gave up. Awaiting approval; stories V1–V7 in the doc.
 - **Merged on `project/red-one`:** story 1 scaffold (#35): `src/red_one` FastAPI app with security
   headers and a stub/live health route, Codespaces dev container `.devcontainer/red-one/`, security
   CI workflow `.github/workflows/red-one-security.yml` (gitleaks + pip-audit, project branch only).
   Under the new direction the FastAPI app gets removed or repurposed; the CI, lint and test setup
   is reused for the MCP server and hooks.
-- **CI fix in review (#81):** pip-audit failed because Python 3.11's venv bundles a vulnerable
-  setuptools (see Known issues).
+- **CI fix merged (#81).**
 - Requirements: kickoff chat with Claude (below) and the owner's ChatGPT conversation
   ([`chatgpt-kickoff-notes.md`](chatgpt-kickoff-notes.md)). Milestones: [`roadmap.md`](roadmap.md)
   (to be re-cut for the new direction).
@@ -61,7 +64,8 @@ owner gets a report of what was found. **Security is the top priority. No spendi
 13. **PR approval by spoken passphrase**, then Claude confirms the target branch, then the merge.
 14. **Every milestone usable on its own, with owner test steps; versions kept on GitHub** for
     rollback. Long term: open-source the package or run it as a server.
-15. **Phone app later**, not now.
+15. **Phone:** originally "later"; on 2026-11-08 the owner asked for the voice version to run
+    through the phone. Phone browser + home-screen shortcut, no app store (voice-design.md).
 
 ## Key design positions (see decisions.md)
 - **Wake word in an armed Chrome window**, not a script (approved): the Chrome sandbox blocks file
@@ -85,8 +89,11 @@ owner gets a report of what was found. **Security is the top priority. No spendi
   bill if auto-reload is off). The owner is on **Pro**: no included API credits (only Max, Ultra,
   Team), and subscription sign-in can't power a custom app (Anthropic's terms: apps, including Agent
   SDK ones, use API keys). Pro still covers the Claude Code sessions that build Red One.
-  Decided: build in stub mode; real replies start when the owner adds an `ANTHROPIC_API_KEY`
-  Codespaces secret (design.md §8.1). The owner asked to use Pro; explained why that's not allowed.
+  **Revisited 2026-11-08 (proposed, voice-design.md §2):** the docs only bar *third-party developers*
+  offering claude.ai login to their users; the owner signing in to the unmodified `claude` CLI for
+  their own use is ordinary use, and `claude -p` draws from normal Pro limits (a June 2026 plan to
+  bill it from a separate Agent SDK credit was paused). So the voice page can run on Pro, pending
+  the owner's OK.
 
 ## Long-term vision
 A large multi-model "engineering team" room, each member with its own voice and role, speaking up
@@ -113,8 +120,7 @@ when needed then returning to work, with Claude moderating (see roadmap.md). Tod
   main account (or an org it owns), so the main account is never connected to Claude.
 
 ## Next
-1. Owner merges #81 (CI fix) and #36 (proposal + chosen direction), in either order.
-2. Owner answers #36's open questions: where Red One sessions live (separate repo, recommended, vs a
-   dedicated branch) and adding the Gemini key as a cloud-environment network secret.
-3. Then: close issues #27–#33, re-cut `roadmap.md` and the M1 stories for the Claude-Code-native
-   build, and decide whether to delete or repurpose the merged FastAPI scaffold.
+1. Owner reviews the voice amendment PR and answers its open questions (Pro via `claude -p`;
+   local vs Chrome speech-to-text; Android or iPhone; workspace repo name).
+2. Then: close issues #27–#33, re-cut `roadmap.md` (M1 Claude-Code-native stories + the voice
+   stories V1–V7), open the story issues, and start V1 (it repurposes the FastAPI scaffold).
