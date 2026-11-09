@@ -138,3 +138,25 @@ Entries marked "(proposed)" are Claude's suggestions awaiting the owner's approv
   rejected: auditing only runtime dependencies (would hide toolchain vulnerabilities), or ignoring
   the advisory IDs. Licence metadata switched to the SPDX form `LicenseRef-Proprietary` (the
   table form is deprecated and stops building in Feb 2027).
+- 2026-11-05 — Owner answered #36 "Yes to all": Claude-Code-native direction approved; Red One
+  sessions live in a small separate workspace repo the owner creates (option a); Gemini key goes in
+  as a cloud-environment network secret — owner answer on PR #36.
+- 2026-11-08 — Voice milestone added; voice-clone and spoofing attacks out of scope; keep only a
+  light "is it you?" check — owner request (chat, after sharing the Ember Voice ID write-up) —
+  rejected: Ember v2's detectors, synthetic crowd and prosody.
+- 2026-11-08 — The voice version must run through the owner's phone — owner request (chat) —
+  pulls part of M8 forward as a phone-browser web app; rejected: a native app.
+- 2026-11-08 — (proposed) Voice brain = the unmodified `claude -p` CLI (stream-json, one long-lived
+  process) logged in with the owner's own Pro account, in the codespace, used only by the owner —
+  current docs bar third-party developers offering claude.ai login, not an end user using their
+  own login with the unmodified binary; `claude -p` draws from normal Pro limits — supersedes, if
+  approved, the 2026-11-02 "API key only" entry for this use — rejected: API key (costs money),
+  Gemini as brain (sensitive data must stay with Claude).
+- 2026-11-08 — (proposed) Voice stack: browser echo cancellation + in-browser Silero VAD;
+  faster-whisper small.en (int8, CPU) for STT and wake phrase by transcription; Kokoro-82M TTS;
+  WeSpeaker ResNet34 via sherpa-onnx with Ember v1 rules for "is it you" — all free, private and
+  CPU-only in the codespace — rejected: custom NLMS echo filter (browser does it), trained wake-word
+  model for now (needs training; later if CPU or false wakes become a problem), Chrome speech
+  recognition as default (audio to Google; offered as an option).
+- 2026-11-08 — (proposed) Voice never approves anything: voice turns run with read-only tools and
+  the #36 hooks still require a typed `/approve` — spoken text is untrusted and misheard easily.
